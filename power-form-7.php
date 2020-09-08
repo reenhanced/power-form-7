@@ -35,10 +35,10 @@ if ( ! defined( 'WPINC' ) ) {
  * Start at version 1.0.0 and use SemVer - https://semver.org
  * Rename this for your plugin and update it as you release new versions.
  */
-define( 'POWER_FORM_7_VERSION', '1.0.0' );
+define( 'PF7_VERSION', '1.0.0' );
 
-//define( 'POWER_FORM_7_URL', 'http://docker-host:3000/power-form-7/api');
-define( 'POWER_FORM_7_URL', 'https://buildbettersoftware.azurewebsites.net/power-form-7/api');
+//define( 'PF7_SERVICE_HOST', 'http://docker-host:3000/licensing/api');
+define( 'PF7_SERVICE_HOST', 'https://we.buildbettersoftware.com/licensing/api');
 
 /**
  * The code that runs during plugin activation.
