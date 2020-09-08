@@ -10,16 +10,16 @@
  *
  * @link              https://www.reenhanced.com/
  * @since             1.0.0
- * @package           cf7-power-automate
- *
+ * @package           power-form-7
+ 
  * @wordpress-plugin
- * Plugin Name:       CF7 Power Automate Add-On
- * Plugin URI:        https://www.reenhanced.com/products/cf7-power-automate/
- * Description:       Integrates Contact Form 7 with Microsoft Power Automate.
+ * Plugin Name:       Power Form 7
+ * Plugin URI:        https://www.reenhanced.com/products/power-form-7/
+ * Description:       Power Form 7 integrates Contact Form 7 with Microsoft Power Automate.
  * Version:           1.0.0
  * Author:            Reenhanced LLC
  * Author URI:        https://www.reenhanced.com/
- * Text Domain:       cf7-power-automate
+ * Text Domain:       power-form-7
  * Domain Path:       /languages
  * 
  * Copyright 2020 Reenhanced LLC. All Rights Reserved.
@@ -35,35 +35,35 @@ if ( ! defined( 'WPINC' ) ) {
  * Start at version 1.0.0 and use SemVer - https://semver.org
  * Rename this for your plugin and update it as you release new versions.
  */
-define( 'CF7_POWER_AUTOMATE_VERSION', '1.0.0' );
+define( 'POWER_FORM_7_VERSION', '1.0.0' );
 
-//define( 'CF7_POWER_AUTOMATE_SERVICE_URL', 'http://docker-host:3000/gravity-flow/api');
-define( 'CF7_POWER_AUTOMATE_SERVICE_URL', 'https://buildbettersoftware.azurewebsites.net/gravity-flow/api');
+//define( 'POWER_FORM_7_URL', 'http://docker-host:3000/power-form-7/api');
+define( 'POWER_FORM_7_URL', 'https://buildbettersoftware.azurewebsites.net/power-form-7/api');
 
 /**
  * The code that runs during plugin activation.
  */
-function activate_cf7_power_automate() {
-	require_once plugin_dir_path( __FILE__ ) . 'includes/class-cf7-power-automate-activator.php';
-	CF7_Power_Automate_Activator::activate();
+function activate_power_form_7() {
+	require_once plugin_dir_path( __FILE__ ) . 'includes/class-power-form-7-activator.php';
+	Power_Form_7_Activator::activate();
 }
 
 /**
  * The code that runs during plugin deactivation.
  */
-function deactivate_cf7_power_automate() {
-	require_once plugin_dir_path( __FILE__ ) . 'includes/class-cf7-power-automate-deactivator.php';
-	CF7_Power_Automate_Deactivator::deactivate();
+function deactivate_power_form_7() {
+	require_once plugin_dir_path( __FILE__ ) . 'includes/class-power-form-7-deactivator.php';
+	Power_Form_7_Deactivator::deactivate();
 }
 
-register_activation_hook( __FILE__, 'activate_cf7_power_automate' );
-register_deactivation_hook( __FILE__, 'deactivate_cf7_power_automate' );
+register_activation_hook( __FILE__, 'activate_power_form_7' );
+register_deactivation_hook( __FILE__, 'deactivate_power_form_7' );
 
 /**
  * The core plugin class that is used to define internationalization,
  * admin-specific hooks, and public-facing site hooks.
  */
-require plugin_dir_path( __FILE__ ) . 'includes/class-cf7-power-automate.php';
+require plugin_dir_path( __FILE__ ) . 'includes/class-power-form-7.php';
 
 /**
  * Begins execution of the plugin.
@@ -74,11 +74,11 @@ require plugin_dir_path( __FILE__ ) . 'includes/class-cf7-power-automate.php';
  *
  * @since    1.0.0
  */
-function run_cf7_power_automate() {
+function run_power_form_7() {
 
-	$plugin = new CF7_Power_Automate();
+	$plugin = new Power_Form_7();
 	$plugin->run();
 }
 
 // Load the plugin only if CF7 is installed.
-add_action('cf7_action_that_runs_after_init', 'run_cf7_power_automate', 5);
+add_action('wpcf7_init', 'run_power_form_7', 10, 0);
