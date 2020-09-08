@@ -80,7 +80,8 @@ class Power_Form_7 {
 		$this->load_dependencies();
 		$this->set_locale();
 		$this->define_admin_hooks();
-		$this->define_public_hooks();
+		$this->define_api_hooks();
+		$this->define_hooks();
 	}
 
 	/**
@@ -134,7 +135,12 @@ class Power_Form_7 {
 		/**
 		 * The class responsible for defining all actions that occur in the admin area.
 		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/class-power-form-7-admin.php';
+    require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/class-power-form-7-admin.php';
+
+		/**
+		 * The class responsible for defining all actions that occur in the api
+		 */
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'api/class-power-form-7-api.php';
 
 		$this->loader = new Power_Form_7_Loader();
 
@@ -171,14 +177,44 @@ class Power_Form_7 {
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
 
-		// TODO: Send all form objects to server so we can provide schema to Power Automate
-		// TODO: Add hook to send form JSON to server when form object is changed.
-
-
 		// TODO: After license is changed validate and show info about expiration date and sites allowed
 		// 			 We want to validate the license so we can keep users informed of when license expires 
-		//add_action( 'admin_notices', array( $this, 'action_admin_notices' ) );
+		//$this->loader->add_action( 'admin_notices', array( $this, 'action_admin_notices' ) );
 	}
+
+	/**
+   * 
+	 * Register all of the hooks related to the api functionality
+	 * of the plugin.
+	 *
+	 * @since    1.0.0
+	 * @access   private
+	 */
+	private function define_api_hooks() {
+
+    $plugin_api = new Power_Form_7_Api( $this->get_plugin_name(), $this->get_version() );
+    
+    // TODO:
+    // - Install API endpoints for triggers: When a Contact Form 7 submission is created
+    // - Install API endpoints for actions:
+    //    -  TBD
+
+		// $this->loader->add_action( 'api_stuff', $plugin_api, 'trigger_listeners' );
+	}
+
+	/**
+	 * Register all of the hooks related to the functionality
+	 * of the plugin.
+	 *
+	 * @since    1.0.0
+	 * @access   private
+	 */
+	private function define_hooks() {
+    // TODO: Add hook for after_submission here -- send data to power automate
+    // $this->loader->add_action('wpcf7', $this, 'process_submission', 10, 2); // Args: $contact_form, $result
+    // Reference: https://github.com/takayukister/contact-form-7/blob/master/modules/flamingo.php
+	}
+
 
 	/**
 	 * Run the loader to execute all of the hooks with WordPress.
