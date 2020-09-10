@@ -20,7 +20,7 @@
  * @subpackage Power_Forms_7/includes
  * @author     Nick Hance <nhance@reenhanced.com>
  */
-class Power_Forms_7_Activator {
+class Power_Form_7_Activator {
 
 	/**
 	 * Short Description. (use period)

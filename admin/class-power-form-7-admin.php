@@ -41,6 +41,12 @@ class Power_Form_7_Admin {
 	private $version;
 
 	/**
+	 * The option group for our settings
+	 * 
+	 */
+	public $option_group = 'wpcf7-pf7';
+
+	/**
 	 * Initialize the class and set its properties.
 	 *
 	 * @since    1.0.0
@@ -54,6 +60,212 @@ class Power_Form_7_Admin {
 
 	}
 
+	public function get_settings_page_slug() {
+		return $this->option_group;
+	}
+
+
+	/**
+	 * Register the settings page menu item
+	 * 
+	 * @since 1.0.0
+	 */
+	public function admin_menu() {
+		$settings = add_submenu_page('wpcf7',
+							__( 'Power Form 7 Settings', 'power-form-7'),
+							__( 'Power Automate Settings', 'power-form-7'),
+							'wpcf7_manage_integration',
+							$this->get_settings_page_slug(),
+							array($this, 'settings_page')
+						);
+
+		add_action('load-'. $settings, array($this, 'load_settings_page'));
+	}
+
+	public function admin_init() {
+		// Register settings page
+		register_setting($this->get_settings_page_slug(), $this->plugin()->get_option_name(), array(
+			'type' => 'object'
+		));
+
+		add_settings_section(
+			$this->plugin()->get_option_name(),
+			'Power Automate',
+			array($this, 'settings_section_callback'),
+			$this->get_settings_page_slug()
+		);
+
+		add_settings_field(
+			'pf7_enabled',
+			'Enabled?',
+			array($this, 'enabled_checkbox'),
+			$this->get_settings_page_slug(),
+			$this->plugin()->get_option_name()
+		);
+
+		add_settings_field(
+			'pf7_license_key',
+			'License Key',
+			array($this, 'license_key_input'),
+			$this->get_settings_page_slug(),
+			$this->plugin()->get_option_name()
+		);
+
+		add_settings_field(
+			'pf7_flow_user',
+			'Power Automate User',
+			array($this, 'users_dropdown'),
+			$this->get_settings_page_slug(),
+			$this->plugin()->get_option_name()
+		);
+	}
+
+	public function settings_section_callback($args) {
+		?>
+			<p>Configure your Contact Form 7 Power Automate Integration here.</p>
+			<p>
+			This plugin requires a license to use.
+			Please visit the <a href="https://reenhanced.com/products/power-form-7">Power Form 7 product page</a> to obtain a license if you need one.
+			</p>
+		<?php
+	}
+
+	public function enabled_checkbox() {
+		$enabled = $this->plugin()->get_app_setting('enabled', true);
+		?>
+		<input name="<?php echo $this->option_name('enabled') ?>" type="checkbox" value="TRUE" <?php echo ($enabled) ? "checked" : ""; ?> />
+		<?php
+	}
+
+	public function license_key_input() {
+		$key = $this->plugin()->get_app_setting('license_key');
+		$valid = false;
+		?>
+		<input name="<?php echo $this->option_name('license_key') ?>" type="password" value="<?php echo $key ?>" autocomplete="new-password" />
+		<?php
+		  if (!empty($key)) {
+				if ($valid) {
+					echo "🆗";
+				} else {
+					echo "⛔";
+				}
+			}
+	}
+
+	public function users_dropdown() {
+		$users_list = get_users( [ 'role__in' => [ 'administrator' ] ] );
+		$pf7_user   = $this->plugin()->get_app_setting('flow_user');
+		?>
+		<select name="<?php echo $this->option_name('flow_user') ?>">
+			<option <?php echo (empty($pf7_user)) ? "selected" : "" ?> value="">Select User</option>
+			<?php foreach ($users_list as $user) {
+				$selected = "";
+				if ($user->ID == $pf7_user) {
+					$selected = "selected";
+				}
+				echo "<option ". $selected . " value='" . $user->ID . "'>" . esc_html($user->display_name) . "</option>";
+			} ?>
+		</select>
+		<p><em>Please select the administrator account that will be used by Power Automate</em></p><?php
+	}
+
+	public function load_settings_page() {
+		// This is where we handle submissions and data set on our settings page.
+		// Validation, License activation, etc
+	}
+
+	public function settings_page() {
+		// Get list of users here
+		// Get settings that we've saved
+		// Fields: Enable, License Key, Power Automate User Identity
+
+		// Custom settings page: https://developer.wordpress.org/plugins/settings/custom-settings-page/
+		?>
+		<div class="wrap" id="wpcf7-pf7">
+			<h1><span><i class="fa fa-cogs"></i> <?php echo esc_html__(get_admin_page_title()) ?></span></h1>
+
+			<?php
+				// check if the user have submitted the settings
+				// WordPress will add the "settings-updated" $_GET parameter to the url
+				if ( isset( $_GET['settings-updated'] ) ) {
+						// add settings saved message with the class of "updated"
+						add_settings_error( $this->option_group.'_messages', $this->option_group .'_message', __( 'Settings Saved', 'power-form-7' ), 'updated' );
+				}
+		
+				// show error/update messages
+				settings_errors( $this->option_group.'_messages' );
+
+				var_export($this->plugin()->get_app_settings());
+			?>
+
+			<form action="options.php" method="post">
+				<input type="hidden" name="page" value="<?php echo $_REQUEST['page'] ?>" />
+				<?php 
+				settings_fields($this->option_group);
+
+				do_settings_sections($this->option_group);
+
+				submit_button("Save Settings!");
+				?>
+			</form>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Configures the settings which should be rendered
+	 *
+	 * @return array
+	 */
+	public function app_settings_fields() {
+			return array(
+					array(
+							'title'  => esc_html__( 'Power Automate Integration Settings', 'power-form-7' ),
+							'description' => 'Configure your Contact Form 7 Power Automate Integration here. This plugin requires a license to use. Please visit the <a href="https://reenhanced.com/products/power-form-7">Power Form 7 product page</a> to obtain a license if you need one.',
+							'fields' => array(
+									array(
+											'label'   => 'Enable Power Automate Integration',
+											'type'    => 'checkbox',
+											'name'    => 'enabled',
+											'tooltip' => 'Check this box to enable integration with Power Automate',
+											'choices' => array(
+													array(
+															'label' => 'Enabled',
+															'name'  => 'enabled',
+															'default_value' => 1,
+													),
+											),
+									),
+									array(
+											'label'             => esc_html__( 'License Key', 'power-form-7' ),
+											'type'              => 'text',
+											'name'              => 'license_key',
+											'required'          => true,
+											'tooltip'           => esc_html__( 'This is your license key from reenhanced.com', 'power-form-7' ),
+											'class'             => 'large',
+											'validation_callback' => array($this, 'license_validation'),
+											'feedback_callback'   => array($this, 'license_feedback'),
+											'error_message'       => __('Invalid License', 'power-form-7'),
+											'default_value'       => ''
+									),
+									array(
+											'label'   => 'Power Automate User',
+											'type'    => 'checkbox',
+											'name'    => 'enabled',
+											'tooltip' => 'Check this box to enable integration with Power Automate',
+											'choices' => array(
+													array(
+															'label' => 'Enabled',
+															'name'  => 'enabled',
+															'default_value' => 1,
+													),
+											),
+
+									)
+							),
+					),
+			);
+	}
 	/**
 	 * Register the stylesheets for the admin area.
 	 *
@@ -149,23 +361,23 @@ class Power_Form_7_Admin {
 
 			$add_buttons = ! is_multisite();
 
-			$primary_button_link = admin_url( 'admin.php?page=gf_settings&subview=gravity-forms-power-automate' );
+			$primary_button_link = admin_url( 'admin.php?page=' . $this->get_settings_page_slug() );
 
 			$message = sprintf( '<img src="%s" style="vertical-align:text-bottom;margin-right:5px;"/>', GFCommon::get_base_url() . '/images/exclamation.png' );
 
 			switch ( $license_status ) {
 				case 'expired':
 					/* translators: %s is the title of the plugin */
-					$message     .= sprintf( esc_html__( 'Your %s license has expired.', 'gravity-forms-power-automate' ), $this->_title );
+					$message     .= sprintf( esc_html__( 'Your %s license has expired.', 'power-form-7' ), $this->_title );
 					$add_buttons = false;
 					break;
 				case 'invalid':
 					/* translators: %s is the title of the plugin */
-					$message .= sprintf( esc_html__( 'Your %s license is invalid.', 'gravity-forms-power-automate' ), $this->_title );
+					$message .= sprintf( esc_html__( 'Your %s license is invalid.', 'power-form-7' ), $this->_title );
 					break;
 				case 'deactivated':
 					/* translators: %s is the title of the plugin */
-					$message .= sprintf( esc_html__( 'Your %s license is inactive.', 'gravity-forms-power-automate' ), $this->_title );
+					$message .= sprintf( esc_html__( 'Your %s license is inactive.', 'power-form-7' ), $this->_title );
 					break;
 				/** @noinspection PhpMissingBreakStatementInspection */
 				case '':
@@ -174,13 +386,13 @@ class Power_Form_7_Admin {
 				case 'inactive':
 				default:
 					/* translators: %s is the title of the plugin */
-					$message .= sprintf( esc_html__( 'Your %s license has not been activated.', 'gravity-forms-power-automate' ), $this->_title );
+					$message .= sprintf( esc_html__( 'Your %s license has not been activated.', 'power-form-7' ), $this->_title );
 					break;
 			}
 
-			$message .= ' ' . esc_html__( "This means your forms are not connected to Power Automate.", 'gravity-forms-power-automate' );
+			$message .= ' ' . esc_html__( "This means your forms are not connected to Power Automate.", 'power-form-7' );
 
-			$url = 'https://reenhanced.com/products/gravity-flow-power-automate/?utm_source=admin_notice&utm_medium=admin&utm_content=' . $license_status . '&utm_campaign=Admin%20Notice#pricing';
+			$url = 'https://reenhanced.com/products/power-form-7/?utm_source=admin_notice&utm_medium=admin&utm_content=' . $license_status . '&utm_campaign=Admin%20Notice#pricing';
 
 			// Show a different notice on settings page for inactive licenses (hide the buttons)
 			if ( $add_buttons && ! $this->is_app_settings() ) {
@@ -188,11 +400,11 @@ class Power_Form_7_Admin {
 				$message = sprintf( $message, '<a href="' . esc_url( $primary_button_link ) . '" class="button button-primary">', '</a>', '<a href="' . esc_url( $url ) . '" class="button button-secondary">', '</a>' );
 			}
 
-			$key = 'gravity-forms-power-automate_license_notice_' . date( 'Y' ) . date( 'z' );
+			$key = 'power-form-7_license_notice_' . date( 'Y' ) . date( 'z' );
 
 			$notice = array(
 				'key'          => $key,
-				'capabilities' => 'gravity-forms-power-automate_settings',
+				'capabilities' => 'power-form-7_settings',
 				'type'         => 'error',
 				'text'         => $message,
 			);
@@ -203,44 +415,17 @@ class Power_Form_7_Admin {
 		}
 	}
 
-	/**
-	 * Configures the settings which should be rendered on the Forms > Settings > Power Automate Integration tab.
-	 *
-	 * @return array
-	 */
-	public function plugin_settings_fields() {
-			return array(
-					array(
-							'title'  => esc_html__( 'Power Automate Integration Settings', 'gravity-forms-power-automate' ),
-							'description' => 'This plugin requires a license to use. Please visit the <a href="https://reenhanced.com/products/gravity-forms-power-automate">Gravity Forms Power Automate product page</a> to obtain a license if you need one.',
-							'fields' => array(
-									array(
-											'label'   => 'Enable Power Automate Integration',
-											'type'    => 'checkbox',
-											'name'    => 'enabled',
-											'tooltip' => 'Check this box to enable integration with Power Automate',
-											'choices' => array(
-													array(
-															'label' => 'Enabled',
-															'name'  => 'enabled',
-															'default_value' => 1,
-													),
-											),
-									),
-									array(
-											'label'             => esc_html__( 'License Key', 'gravity-forms-power-automate' ),
-											'type'              => 'text',
-											'name'              => 'license_key',
-											'required'          => true,
-											'tooltip'           => esc_html__( 'This is your license key from reenhanced.com', 'gravity-forms-power-automate' ),
-											'class'             => 'large',
-											'validation_callback' => array($this, 'license_validation'),
-											'feedback_callback'   => array($this, 'license_feedback'),
-											'error_message'       => __('Invalid License', 'gravity-forms-power-automate'),
-											'default_value'       => ''
-									),
-							),
-					),
-			);
+
+	private function option_name($name) {
+		return $this->plugin()->get_option_name().'['.$name.']';
+	}
+
+	private $_plugin;
+	private function plugin() {
+		if ($this->_plugin == null) {
+			$this->_plugin = Power_Form_7::get_instance();
+		}
+
+		return $this->_plugin;
 	}
 }

@@ -62,14 +62,6 @@ class Power_Form_7_Api {
     
     $this->routes = array();
 
-    // TODO: Stock wordpress rest API does not include any authentication methods. We can't rely on auth plugins or wordpress.com for our clients
-    // Therefore we need to build out own authentication method.
-    // This authentication method can be the license key for our product.
-
-    // By controlling authentication, we can use the given license key to:
-    // - Allow capabilities required by our api (I.E. https://github.com/takayukister/contact-form-7/blob/master/includes/capabilities.php protect the api for contact form 7)
-    // - Allow other requests to fail if outside scope of our authority
-    // - Fail requests if license key is not provided or is invalid
 
     $this->require_dependencies();
     $this->load_controllers();
@@ -86,6 +78,27 @@ class Power_Form_7_Api {
     return function() {
       // Runs register_rest_route (base wordpress) for all of our routes.
     };
+  }
+
+  /**
+   * Authentication handler allows users to authenticate to the API using their license key
+   * 
+   * Stock wordpress rest API does not include any authentication methods. We can't rely on auth plugins or wordpress.com for our clients
+   * Therefore we need to build out own authentication method.
+   * This authentication method can be the license key for our product.
+   * 
+   * This allows us to:
+   * - Allow capabilities required by our plugin
+   * - Allow other requests to fail gracefully
+   * - Fail requests if license key is not provided or is invalid
+   */
+  public function license_auth_handler($user) {
+    // Performs an authentication check if we are not logged in and have received the license header
+
+  }
+
+  public function license_auth_error($error) {
+
   }
 
   /*********************** PRIVATE */

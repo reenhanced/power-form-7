@@ -55,10 +55,10 @@ class Power_Form_7 {
 	 * The unique identifier of this plugin.
 	 *
 	 * @since    1.0.0
-	 * @access   protected
+	 * @access   public
 	 * @var      string    $plugin_name    The string used to uniquely identify this plugin.
 	 */
-	protected $plugin_name;
+	public $plugin_name;
 
 	/**
 	 * Define the core functionality of the plugin.
@@ -70,8 +70,6 @@ class Power_Form_7 {
 	 * @since    1.0.0
 	 */
 	public function __construct() {
-		parent::init();
-
 		if ( defined( 'PF7_VERSION' ) ) {
 			$this->_version = PF7_VERSION;
 		}
@@ -102,6 +100,14 @@ class Power_Form_7 {
 			return self::$_instance;
 	}
 
+	public static function option_name() {
+		return self::get_instance()->get_option_name();
+	}
+
+	public function get_option_name() {
+		return $this->plugin_name . '_app_settings';
+	}
+
 	/**
 	 * Load the required dependencies for this plugin.
 	 *
@@ -119,7 +125,6 @@ class Power_Form_7 {
 	 * @access   private
 	 */
 	private function load_dependencies() {
-
 		/**
 		 * The class responsible for orchestrating the actions and filters of the
 		 * core plugin.
@@ -177,6 +182,9 @@ class Power_Form_7 {
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
 
+		$this->loader->add_action( 'admin_menu', $plugin_admin, 'admin_menu');
+		$this->loader->add_action( 'admin_init', $plugin_admin, 'admin_init');
+
 		// TODO: After license is changed validate and show info about expiration date and sites allowed
 		// 			 We want to validate the license so we can keep users informed of when license expires 
 		//$this->loader->add_action( 'admin_notices', array( $this, 'action_admin_notices' ) );
@@ -197,9 +205,13 @@ class Power_Form_7 {
     // TODO:
     // - Install API endpoints for triggers: When a Contact Form 7 submission is created
     // - Install API endpoints for actions:
-    //    -  TBD
+		//    -  TBD
+		
+		// TODO: Install authenticator via license key. (Provides mock user with api permissions required for use of our plugin)
 
 		$this->loader->add_action( 'rest_api_init', $plugin_api, 'rest_api_init' );
+		$this->loader->add_filter( 'determine_current_user', $plugin_api, 'license_auth_handler');
+		$this->loader->add_filter( 'rest_authentication_errors', $plugin_api, 'license_auth_error');
 	}
 
 	/**
@@ -264,7 +276,9 @@ class Power_Form_7 {
 	 * @return mixed|string
 	 */
 	public function get_app_setting( $setting_name, $default = null ) {
-		$setting = parent::get_app_setting( $setting_name );
+		$settings = $this->get_app_settings();
+
+		$setting = $settings[$setting_name];
 
 		if ( ! empty( $setting ) ) {
 			return $setting;
@@ -279,8 +293,12 @@ class Power_Form_7 {
 	 * @return array
 	 */
 	public function get_app_settings() {
-		return parent::get_app_settings();
-  }
+		return get_option($this->get_option_name());
+	}
+	
+	public function update_app_settings($settings) {
+		return update_option($this->get_option_name(), $settings);
+	}
 
   /**
    * Handles the submission from Contact Form 7.
