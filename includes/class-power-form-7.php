@@ -37,8 +37,10 @@ class Power_Form_7 {
 	protected $_slug = 'power-form-7';
 	protected $_path = 'power-form-7/power-form-7.php';
 	protected $_full_path = __FILE__;
-	protected $_title = 'Power Form 7 -- Contact Form 7 Power Automate Integration';
-	protected $_short_title = 'Power Form 7';
+	public $_title = 'Power Form 7 -- Contact Form 7 Power Automate Integration';
+	public $_short_title = 'Power Form 7';
+
+	protected $_log;
 
 
 	/**
@@ -146,9 +148,13 @@ class Power_Form_7 {
 		 * The class responsible for defining all actions that occur in the api
 		 */
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'api/class-power-form-7-api.php';
+		
+		if (WP_DEBUG) {
+			require_once plugin_dir_path( dirname(__FILE__) ) . 'includes/logging/KLogger.php';
+			$this->_log = new KLogger("/tmp/pf7.log", KLogger::DEBUG);
+		}
 
 		$this->loader = new Power_Form_7_Loader();
-
 	}
 
 	/**
@@ -185,9 +191,7 @@ class Power_Form_7 {
 		$this->loader->add_action( 'admin_menu', $plugin_admin, 'admin_menu');
 		$this->loader->add_action( 'admin_init', $plugin_admin, 'admin_init');
 
-		// TODO: After license is changed validate and show info about expiration date and sites allowed
-		// 			 We want to validate the license so we can keep users informed of when license expires 
-		//$this->loader->add_action( 'admin_notices', array( $this, 'action_admin_notices' ) );
+		// TODO: Link to settings from plugin listing area
 	}
 
 	/**
@@ -205,9 +209,9 @@ class Power_Form_7 {
     // TODO:
     // - Install API endpoints for triggers: When a Contact Form 7 submission is created
     // - Install API endpoints for actions:
-		//    -  TBD
+		//    -  Submit a Contact Form 7 form (Can this be done through the existing API?)
 		
-		// TODO: Install authenticator via license key. (Provides mock user with api permissions required for use of our plugin)
+		// TODO: Authenticate requests via license key. (Provides mock user with api permissions required for use of our plugin)
 
 		$this->loader->add_action( 'rest_api_init', $plugin_api, 'rest_api_init' );
 		$this->loader->add_filter( 'determine_current_user', $plugin_api, 'license_auth_handler');
@@ -278,10 +282,8 @@ class Power_Form_7 {
 	public function get_app_setting( $setting_name, $default = null ) {
 		$settings = $this->get_app_settings();
 
-		$setting = $settings[$setting_name];
-
-		if ( ! empty( $setting ) ) {
-			return $setting;
+		if (array_key_exists($setting_name, $settings)) {
+			return $settings[$setting_name];
 		}
 
 		return $default;
@@ -327,13 +329,14 @@ class Power_Form_7 {
 	 *
 	 * @return bool|null
 	 */
-	public function license_feedback( $value, $field ) {
+	public function license_status_check() {
+		$key = $this->get_app_setting('license_key');
 
-		if ( empty( $value ) ) {
-			return null;
+		if ( empty( $key ) ) {
+			return false;
 		}
 
-		$license_data = $this->check_license( $value );
+		$license_data = $this->check_license( $key );
 
 		$valid = $license_data && $license_data->status == 'valid' ? true : false;
 
@@ -368,30 +371,6 @@ class Power_Form_7 {
 	}
 
 	/**
-	 * Deactivates the old license key and triggers activation of the new license key.
-	 *
-	 * @param array  $field         The license field properties.
-	 * @param string $field_setting The license key to be validated.
-	 */
-	public function license_validation( $field, $field_setting ) {
-		$old_license = $this->get_app_setting( 'license_key' );
-
-		if ( $old_license && $field_setting != $old_license ) {
-			// Deactivate the old site.
-			$response = $this->perform_license_request( 'deactivate_license', $old_license );
-			$this->log_debug( __METHOD__ . '() - response: ' . print_r( $response, 1 ) );
-		}
-
-		set_transient( 'power_form_7_license_details', false );
-
-		if ( empty( $field_setting ) ) {
-			return;
-		}
-
-		$this->activate_license( $field_setting );
-	}
-
-	/**
 	 * Activates the license key for this site and clears the cached version info,
 	 *
 	 * @param string $license_key The license key to be activated.
@@ -402,7 +381,7 @@ class Power_Form_7 {
 		$response = $this->perform_license_request( 'activate_license', $license_key );
 
 		set_site_transient( 'update_plugins', null );
-		$cache_key = md5( 'power_form_7_' . sanitize_key( $this->_path ) . '_version_info' );
+		$cache_key = md5( 'pf7_' . sanitize_key( $this->_path ) . '_version_info' );
 		delete_transient( $cache_key );
 
 		return json_decode( wp_remote_retrieve_body( $response ) );
@@ -449,5 +428,12 @@ class Power_Form_7 {
 		$this->log_debug( __METHOD__ . '() - response: ' . print_r( $response, 1 ) );
 
 		return $response;
+	}
+
+
+	public function log_debug($message) {
+		if (isset($this->_log)) {
+			$this->_log->LogDebug($message);
+		}
 	}
 }

@@ -85,7 +85,8 @@ class Power_Form_7_Admin {
 	public function admin_init() {
 		// Register settings page
 		register_setting($this->get_settings_page_slug(), $this->plugin()->get_option_name(), array(
-			'type' => 'object'
+			'type' => 'object',
+			'sanitize_callback' => array($this, 'settings_section_validation')
 		));
 
 		add_settings_section(
@@ -133,13 +134,13 @@ class Power_Form_7_Admin {
 	public function enabled_checkbox() {
 		$enabled = $this->plugin()->get_app_setting('enabled', true);
 		?>
-		<input name="<?php echo $this->option_name('enabled') ?>" type="checkbox" value="TRUE" <?php echo ($enabled) ? "checked" : ""; ?> />
+		<input name="<?php echo $this->option_name('enabled') ?>" type="checkbox" value="TRUE" <?php echo ($enabled == true) ? "checked" : ""; ?> />
 		<?php
 	}
 
 	public function license_key_input() {
 		$key = $this->plugin()->get_app_setting('license_key');
-		$valid = false;
+		$valid = $this->plugin()->license_status_check();
 		?>
 		<input name="<?php echo $this->option_name('license_key') ?>" type="password" value="<?php echo $key ?>" autocomplete="new-password" />
 		<?php
@@ -172,6 +173,50 @@ class Power_Form_7_Admin {
 	public function load_settings_page() {
 		// This is where we handle submissions and data set on our settings page.
 		// Validation, License activation, etc
+
+	}
+
+	private function settings_message($error_message, $error_class = 'error') {
+		// Error classes: 'warning', 'error', 'updated', 'success'
+		add_settings_error( $this->option_group.'_messages', $this->option_group .'_message', __( $error_message, 'power-form-7' ), $error_class );
+	}
+
+	public function settings_section_validation($dirty_settings) {
+		// This runs only when the settings are changed.
+		// TODO: Validate non-empty license keys
+		// TODO: Show message that plugin will not work unless flow user is set
+		// TODO: Show error message if updating license
+		// TODO: Show error message at all times if settings are not in a valid state.
+
+		$app_settings = $this->plugin()->get_app_settings();
+
+		$error_count = 0;
+		$clean_settings = array();
+		$clean_settings['enabled'] = ($dirty_settings['enabled'] == 'TRUE');
+
+		if (is_numeric($dirty_settings['flow_user'])) {
+			$clean_settings['flow_user'] = $dirty_settings['flow_user'];
+		} else {
+			$error_count++;
+			$this->settings_message('You must assign a Power Automate user!');
+		}
+		
+		if ($this->license_validation($dirty_settings['license_key'])) {
+			$clean_settings['license_key'] = $dirty_settings['license_key'];
+		} else {
+			// Errors will be added from inside validator
+			$error_count++;
+		}
+
+		if ($error_count == 0) {
+			$this->settings_message('Settings Saved!', 'success');
+		}
+
+		// Debugging
+		$this->settings_message(var_export($app_settings, true));
+		$this->settings_message(var_export($dirty_settings, true), 'warning');
+		$this->settings_message(var_export($clean_settings, true), 'updated');
+		return $clean_settings;
 	}
 
 	public function settings_page() {
@@ -185,17 +230,8 @@ class Power_Form_7_Admin {
 			<h1><span><i class="fa fa-cogs"></i> <?php echo esc_html__(get_admin_page_title()) ?></span></h1>
 
 			<?php
-				// check if the user have submitted the settings
-				// WordPress will add the "settings-updated" $_GET parameter to the url
-				if ( isset( $_GET['settings-updated'] ) ) {
-						// add settings saved message with the class of "updated"
-						add_settings_error( $this->option_group.'_messages', $this->option_group .'_message', __( 'Settings Saved', 'power-form-7' ), 'updated' );
-				}
-		
 				// show error/update messages
 				settings_errors( $this->option_group.'_messages' );
-
-				var_export($this->plugin()->get_app_settings());
 			?>
 
 			<form action="options.php" method="post">
@@ -205,67 +241,13 @@ class Power_Form_7_Admin {
 
 				do_settings_sections($this->option_group);
 
-				submit_button("Save Settings!");
+				submit_button("Save Settings");
 				?>
 			</form>
 		</div>
 		<?php
 	}
 
-	/**
-	 * Configures the settings which should be rendered
-	 *
-	 * @return array
-	 */
-	public function app_settings_fields() {
-			return array(
-					array(
-							'title'  => esc_html__( 'Power Automate Integration Settings', 'power-form-7' ),
-							'description' => 'Configure your Contact Form 7 Power Automate Integration here. This plugin requires a license to use. Please visit the <a href="https://reenhanced.com/products/power-form-7">Power Form 7 product page</a> to obtain a license if you need one.',
-							'fields' => array(
-									array(
-											'label'   => 'Enable Power Automate Integration',
-											'type'    => 'checkbox',
-											'name'    => 'enabled',
-											'tooltip' => 'Check this box to enable integration with Power Automate',
-											'choices' => array(
-													array(
-															'label' => 'Enabled',
-															'name'  => 'enabled',
-															'default_value' => 1,
-													),
-											),
-									),
-									array(
-											'label'             => esc_html__( 'License Key', 'power-form-7' ),
-											'type'              => 'text',
-											'name'              => 'license_key',
-											'required'          => true,
-											'tooltip'           => esc_html__( 'This is your license key from reenhanced.com', 'power-form-7' ),
-											'class'             => 'large',
-											'validation_callback' => array($this, 'license_validation'),
-											'feedback_callback'   => array($this, 'license_feedback'),
-											'error_message'       => __('Invalid License', 'power-form-7'),
-											'default_value'       => ''
-									),
-									array(
-											'label'   => 'Power Automate User',
-											'type'    => 'checkbox',
-											'name'    => 'enabled',
-											'tooltip' => 'Check this box to enable integration with Power Automate',
-											'choices' => array(
-													array(
-															'label' => 'Enabled',
-															'name'  => 'enabled',
-															'default_value' => 1,
-													),
-											),
-
-									)
-							),
-					),
-			);
-	}
 	/**
 	 * Register the stylesheets for the admin area.
 	 *
@@ -312,45 +294,51 @@ class Power_Form_7_Admin {
 
 	}
 
-  	/**
-	 * Adds the invalid license admin notice.
-	 *
-	 * @since 2.2.4
-	 */
-	public function action_admin_notices() {
+	public function license_validation($key) {
+		$existing_key = $this->plugin()->get_app_setting('license_key');
 
 		$suppress_on_multisite = ! is_main_site();
-
 		if ( is_multisite() && $suppress_on_multisite ) {
-			return;
+			return true;
 		}
 
-		$is_saving_license_key = isset( $_POST['_gaddon_setting_license_key'] ) && isset( $_POST['_gravity-forms-power-automate_save_settings_nonce'] );
+		$is_activating_license = empty( $existing_key ) && isset( $key );
+		$is_changing_license   = isset( $existing_key ) && $existing_key != $key;
 
 		$license_details = false;
 
-		if ( $is_saving_license_key ) {
-			$posted_license_key = sanitize_text_field( rgpost( '_gaddon_setting_license_key' ) );
-			if ( wp_verify_nonce( $_POST['_gravity-forms-power-automate_save_settings_nonce'], 'gravity-forms-power-automate_save_settings' ) ) {
-				$license_details = $posted_license_key ? $this->activate_license( $posted_license_key ) : false;
-			}
+		if ( $is_activating_license ) {
+			$license_details = $this->plugin()->activate_license( $key );
 			if ( $license_details ) {
 				$expiration = DAY_IN_SECONDS + rand( 0, DAY_IN_SECONDS );
-				set_transient( 'gravity-forms-power-automate_license_details', $license_details, $expiration );
+				set_transient( 'pf7_license_details', $license_details, $expiration );
 			}
-		} else {
-			$license_details = get_transient( 'gravity-forms-power-automate_license_details' );
+		} else if ($is_changing_license) {
+			// Deactivate the old site.
+			$response = $this->plugin()->perform_license_request( 'deactivate_license', $existing_key );
+			$this->plugin()->log_debug( __METHOD__ . '() - response: ' . print_r( $response, 1 ) );
+
+			set_transient( 'pf7_license_details', false );
+
+			if ( empty( $key ) ) {
+				$this->settings_message('No license is set');
+				return false;
+			}
+
+			$this->activate_license( $key );
+		} else { // Saving settings for existing license
+			$license_details = get_transient( 'pf7_license_details' );
 			if ( ! $license_details ) {
-				$last_check = get_option( 'gravity-forms-power-automate_last_license_check' );
+				$last_check = get_option( 'pf7_last_license_check' );
 				if ( $last_check > time() - 5 * MINUTE_IN_SECONDS ) {
-					return;
+					return true;
 				}
 
-				$license_details = $this->check_license();
+				$license_details = $this->plugin()->check_license();
 				if ( $license_details ) {
 					$expiration = DAY_IN_SECONDS + rand( 0, DAY_IN_SECONDS );
-					set_transient( 'gravity-forms-power-automate_license_details', $license_details, $expiration );
-					update_option( 'gravity-forms-power-automate_last_license_check', time() );
+					set_transient( 'pf7_license_details', $license_details, $expiration );
+					update_option( 'pf7_last_license_check', time() );
 				}
 			}
 		}
@@ -358,26 +346,21 @@ class Power_Form_7_Admin {
 		$license_status = $license_details ? $license_details->status : '';
 
 		if ( $license_status != 'valid' ) {
-
-			$add_buttons = ! is_multisite();
-
-			$primary_button_link = admin_url( 'admin.php?page=' . $this->get_settings_page_slug() );
-
-			$message = sprintf( '<img src="%s" style="vertical-align:text-bottom;margin-right:5px;"/>', GFCommon::get_base_url() . '/images/exclamation.png' );
+			$message = '⚠ ';
 
 			switch ( $license_status ) {
 				case 'expired':
 					/* translators: %s is the title of the plugin */
-					$message     .= sprintf( esc_html__( 'Your %s license has expired.', 'power-form-7' ), $this->_title );
+					$message     .= sprintf( esc_html__( 'Your %s license has expired.', 'power-form-7' ), $this->plugin()->_short_title );
 					$add_buttons = false;
 					break;
 				case 'invalid':
 					/* translators: %s is the title of the plugin */
-					$message .= sprintf( esc_html__( 'Your %s license is invalid.', 'power-form-7' ), $this->_title );
+					$message .= sprintf( esc_html__( 'Your %s license is invalid.', 'power-form-7' ), $this->plugin()->_short_title );
 					break;
 				case 'deactivated':
 					/* translators: %s is the title of the plugin */
-					$message .= sprintf( esc_html__( 'Your %s license is inactive.', 'power-form-7' ), $this->_title );
+					$message .= sprintf( esc_html__( 'Your %s license is inactive.', 'power-form-7' ), $this->plugin()->_short_title );
 					break;
 				/** @noinspection PhpMissingBreakStatementInspection */
 				case '':
@@ -386,32 +369,14 @@ class Power_Form_7_Admin {
 				case 'inactive':
 				default:
 					/* translators: %s is the title of the plugin */
-					$message .= sprintf( esc_html__( 'Your %s license has not been activated.', 'power-form-7' ), $this->_title );
+					$message .= sprintf( esc_html__( 'Your %s license has not been activated.', 'power-form-7' ), $this->plugin()->_short_title );
 					break;
 			}
 
 			$message .= ' ' . esc_html__( "This means your forms are not connected to Power Automate.", 'power-form-7' );
 
-			$url = 'https://reenhanced.com/products/power-form-7/?utm_source=admin_notice&utm_medium=admin&utm_content=' . $license_status . '&utm_campaign=Admin%20Notice#pricing';
+			$this->settings_message($message);
 
-			// Show a different notice on settings page for inactive licenses (hide the buttons)
-			if ( $add_buttons && ! $this->is_app_settings() ) {
-				$message .= '<br /><br />' . esc_html__( '%sActivate your license%s or %sget a license here%s', 'gravityflow' );
-				$message = sprintf( $message, '<a href="' . esc_url( $primary_button_link ) . '" class="button button-primary">', '</a>', '<a href="' . esc_url( $url ) . '" class="button button-secondary">', '</a>' );
-			}
-
-			$key = 'power-form-7_license_notice_' . date( 'Y' ) . date( 'z' );
-
-			$notice = array(
-				'key'          => $key,
-				'capabilities' => 'power-form-7_settings',
-				'type'         => 'error',
-				'text'         => $message,
-			);
-
-			$notices = array( $notice );
-
-			GFCommon::display_dismissible_message( $notices );
 		}
 	}
 
