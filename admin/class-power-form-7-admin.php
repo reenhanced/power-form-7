@@ -212,10 +212,6 @@ class Power_Form_7_Admin {
 			$this->settings_message('Settings Saved!', 'success');
 		}
 
-		// Debugging
-		$this->settings_message(var_export($app_settings, true));
-		$this->settings_message(var_export($dirty_settings, true), 'warning');
-		$this->settings_message(var_export($clean_settings, true), 'updated');
 		return $clean_settings;
 	}
 
@@ -376,8 +372,10 @@ class Power_Form_7_Admin {
 			$message .= ' ' . esc_html__( "This means your forms are not connected to Power Automate.", 'power-form-7' );
 
 			$this->settings_message($message);
-
+			return false;
 		}
+
+		return true;
 	}
 
 
