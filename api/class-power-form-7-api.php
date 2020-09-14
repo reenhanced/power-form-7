@@ -43,6 +43,15 @@ class Power_Form_7_Api {
     return $this->plugin_name . '/' . $this->version;
   }
 
+	private $_plugin;
+	private function plugin() {
+		if ($this->_plugin == null) {
+			$this->_plugin = Power_Form_7::get_instance();
+		}
+
+		return $this->_plugin;
+  }
+
 	/**
 	 * Initialize the class and set its properties.
 	 *
@@ -77,6 +86,16 @@ class Power_Form_7_Api {
   public function rest_api_init() {
     return function() {
       // Runs register_rest_route (base wordpress) for all of our routes.
+
+      // Endpoints for cf7:
+      //   - GET /contact-form-7/v1/contact-forms
+      //   - GET /contact-form-7/v1/contact-forms/{{id}}
+      //   - POST /contact-form-7/v1/contact-forms/{{id}}
+      //   - In future can support more for more interesting use-cases
+
+      // Endpoints for pf7:
+      //   - POST /power-form-7/v1/webhooks
+      //   - DELETE /power-form-7/v1/webhooks/{{id}}
     };
   }
 
@@ -92,13 +111,32 @@ class Power_Form_7_Api {
    * - Allow other requests to fail gracefully
    * - Fail requests if license key is not provided or is invalid
    */
-  public function license_auth_handler($user) {
+  public function license_auth_handler($input_user) {
     // Performs an authentication check if we are not logged in and have received the license header
 
-  }
+    if (!empty($input_user)) {
+      return $input_user;
+    }
 
-  public function license_auth_error($error) {
+    $auth_header = $_SERVER['HTTP_LICENSE_AUTHORIZATION'];
 
+    if (!isset($auth_header)) {
+      return $input_user;
+    }
+
+    $auth_license = $auth_header;
+    $license_opt = $this->plugin()->get_app_setting('license_key');
+    $user_id     = $this->plugin()->get_app_setting('flow_user');
+    $user        = $input_user;
+
+    if ($auth_license === $license_opt) {
+      if ($this->plugin()->license_status_check() && is_numeric($user_id)) {
+        $this->plugin()->log_debug( __METHOD__ . '() - Successful authentication as user_id: ' . print_r( $user_id, 1 ) );
+        $user = $user_id;
+      }
+    }
+
+    return $user;
   }
 
   /*********************** PRIVATE */

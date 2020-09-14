@@ -215,7 +215,6 @@ class Power_Form_7 {
 
 		$this->loader->add_action( 'rest_api_init', $plugin_api, 'rest_api_init' );
 		$this->loader->add_filter( 'determine_current_user', $plugin_api, 'license_auth_handler');
-		$this->loader->add_filter( 'rest_authentication_errors', $plugin_api, 'license_auth_error');
 	}
 
 	/**
@@ -336,9 +335,17 @@ class Power_Form_7 {
 			return false;
 		}
 
-		$license_data = $this->check_license( $key );
+		$license_details = get_transient( 'pf7_license_details' );
+		if ( ! $license_details ) {
+			$license_details = $this->check_license();
+			if ( $license_details ) {
+				$expiration = DAY_IN_SECONDS + rand( 0, DAY_IN_SECONDS );
+				set_transient( 'pf7_license_details', $license_details, $expiration );
+				update_option( 'pf7_last_license_check', time() );
+			}
+		}
 
-		$valid = $license_data && $license_data->status == 'valid' ? true : false;
+		$valid = $license_details && $license_details->status == 'valid' ? true : false;
 
 		return $valid;
 	}
