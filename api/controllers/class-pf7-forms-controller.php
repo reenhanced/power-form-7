@@ -54,72 +54,105 @@ class Pf7_Forms_Controller extends WP_Rest_Controller {
     $cf7_props = $form->get_properties();
 
     $properties = array(
-      'type' => 'object',
-      'properties' => array(
-        'id' => array(
-          'type' => 'integer',
-          'format' => 'int32',
-          'x-ms-summary' => 'Form ID',
-          'description' => 'The Contact Form 7 Form ID'
-        ),
-        'slug' => array(
-          'type' => 'string',
-          'x-ms-summary' => 'Slug',
-          'description' => 'The Contact Form 7 slug for the form'
-        ),
-        'title' => array(
-          'type' => 'string',
-          'x-ms-summary' => 'Form Name',
-          'description' => 'The title or name of the Contact Form 7 form'
-        ),
-        'locale' => array(
-          'type' => 'string',
-          'x-ms-summary' => 'Form Locale',
-          'description' => 'The saved locale of the Contact Form 7 form'
-        ),
-        'properties' => array(
-          'type' => 'object',
-          'properties' => array(
-            'form' => array(
-              'type' => 'object',
-              'properties' => array(
-                'fields' => array(
-                  'type' => 'array',
-                  'items' => array(
-                    'type' => 'object',
-                    'properties' => $this->get_properties_for_fields($form)
-                  )
-                )
-              )
-            )
-          )
-        )
+      'remote_ip' => array(
+        'type' => 'string',
+        'x-ms-summary' => 'Remote IP',
+        'description' => 'IP Address of form submitter'
+      ),
+      'user_agent' => array(
+        'type' => 'string',
+        'x-ms-summary' => 'User Agent',
+        'description' => 'User Agent of submitter'
+      ),
+      'url' => array(
+        'type' => 'string',
+        'format' => 'url',
+        'x-ms-summary' => 'Form URL',
+        'description' => 'URL from where the form was submitted'
+      ),
+      'current_user_id' => array(
+        'type' => 'number',
+        'x-ms-summary' => 'User ID',
+        'description' => 'User ID of Wordpress user (0 if not logged in)'
       )
     );
 
-    // TODO: This must describe the API as it comes from contact form 7 for each form.
+    $tags = $form->scan_form_tags();
 
+    $this->plugin()->log_debug( __METHOD__ . '($form) - tags: ' . print_r( $tags, 1 ) );
+
+    foreach ((array) $tags as $tag) {
+      $skip = false;
+      $type = 'string';
+      $format = null;
+
+      switch ($tag->basetype) {
+        case 'text':
+          $type = 'string';
+          break;
+        case 'email':
+          $type = 'string';
+          break;
+        case 'url':
+          $type = 'string';
+          $format = 'url';
+        case 'tel':
+          $type = 'string';
+          $format = 'phone';
+          break;
+        case 'date':
+          $type = 'string';
+          $format = 'date';
+          break;
+        case 'number':
+          $type = 'number';
+          break;
+        case 'checkbox':
+          $type = 'array';
+          break;
+        case 'select':
+          $type = 'array';
+          break;
+        case 'radio':
+          $type = 'array';
+          break;
+        case 'acceptance':
+          $type = 'number';
+          break;
+        case 'textarea':
+          $type = 'string';
+          break;
+        case 'file':
+        case 'submit':
+        default:
+          $skip = true;
+          break;
+      }
+
+      if ($skip) { break; }
+
+      $prop = array(
+        'type' => $type,
+        'x-ms-summary' => $tag->name
+      );
+
+      if ($tag->is_required()) {
+        $prop['x-ms-visibility'] = 'important';
+      }
+
+      if ($type == 'array') {
+        $prop['items'] = array(
+          'type' => 'string'
+        );
+      }
+
+      $properties[$tag->name] = $prop;
+    }
 
     return $properties;
-  }
-
-  private function get_properties_for_fields(WPCF7_ContactForm $form) {
-    $cf7_props = $form->get_properties();
-    $fields = $form->scan_form_tags();
-
-    $this->plugin()->log_debug( __METHOD__ . '($form) - fields: ' . print_r( $fields, 1 ) );
-
-    $field_props = array();
-
-    return $field_props;
   }
 
   private function plugin() {
     return $this->_api->plugin();
   }
-
-  // TODO: Provide schema definitions for the given form id
-  // TODO: Forms are available via API at: https://github.com/takayukister/contact-form-7/blob/master/includes/rest-api.php
-
-
 }

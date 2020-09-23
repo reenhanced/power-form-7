@@ -149,6 +149,11 @@ class Power_Form_7 {
 		 */
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'api/class-power-form-7-api.php';
 		
+		/**
+		 * The class responsible for connecting submission data to azure gateway
+		 */
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-power-form-7-connector.php';
+		
 		if (WP_DEBUG) {
 			require_once plugin_dir_path( dirname(__FILE__) ) . 'includes/logging/KLogger.php';
 			$this->_log = new KLogger("/tmp/pf7.log", KLogger::DEBUG);
@@ -218,9 +223,7 @@ class Power_Form_7 {
 	 * @access   private
 	 */
 	private function define_hooks() {
-    // TODO: Add hook for after_submission here -- send data to power automate
-    // $this->loader->add_action('wpcf7', $this, 'process_submission', 10, 2); // Args: $contact_form, $result
-    // Reference: https://github.com/takayukister/contact-form-7/blob/master/modules/flamingo.php
+    $this->loader->add_action('wpcf7_submit', $this, 'process_submission', 10, 2);
 	}
 
 	/**
@@ -302,16 +305,17 @@ class Power_Form_7 {
 	 * @param $result
    */
   public function process_submission($contact_form, $result) {
-		// TODO: If license is not valid, don't send data to webhooks.
-		// TODO: Move this to its own class?
+		$submission = WPCF7_Submission::get_instance();
 
-		// $result format:
-			// contact_form_id:
-			// status:
-			// message:
-			// demo_mode:
-			// -> https://github.com/takayukister/contact-form-7/blob/28efbe9273962657cf6442a621a1db1ea1e5be0a/includes/contact-form.php#L723
-
+		// If errors result and are our fault, we still want the flows to run.
+		// TODO: Allow more control over the statuses here
+		// Reference: https://github.com/takayukister/contact-form-7/blob/bdedf40684/modules/flamingo.php#L19
+		if ($result['status'] == 'mail_sent' || $result['status'] == 'mail_failed') {
+			if ($this->license_status_check()) {
+				$connector = new Power_Form_7_Connector($contact_form, $submission);
+				$connector->send_to_azure();
+			}
+		}
   }
 
 	/**
@@ -436,5 +440,9 @@ class Power_Form_7 {
 		if (isset($this->_log)) {
 			$this->_log->LogDebug($message);
 		}
+	}
+
+	public static function log($message) {
+		return self::get_instance()->log_debug($message);
 	}
 }
