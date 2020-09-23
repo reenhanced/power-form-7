@@ -206,13 +206,6 @@ class Power_Form_7 {
 
     $plugin_api = new Power_Form_7_Api( $this->get_plugin_name(), $this->get_version() );
     
-    // TODO:
-    // - Install API endpoints for triggers: When a Contact Form 7 submission is created
-    // - Install API endpoints for actions:
-		//    -  Submit a Contact Form 7 form (Can this be done through the existing API?)
-		
-		// TODO: Authenticate requests via license key. (Provides mock user with api permissions required for use of our plugin)
-
 		$this->loader->add_action( 'rest_api_init', $plugin_api, 'rest_api_init' );
 		$this->loader->add_filter( 'determine_current_user', $plugin_api, 'license_auth_handler');
 	}
@@ -310,6 +303,7 @@ class Power_Form_7 {
    */
   public function process_submission($contact_form, $result) {
 		// TODO: If license is not valid, don't send data to webhooks.
+		// TODO: Move this to its own class?
 
 		// $result format:
 			// contact_form_id:

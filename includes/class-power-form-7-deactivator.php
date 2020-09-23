@@ -30,8 +30,6 @@ class Power_Form_7_Deactivator {
 	 * @since    1.0.0
 	 */
 	public static function deactivate() {
-    // Remove API endpoints
-
 	}
 
 }

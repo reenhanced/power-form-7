@@ -183,9 +183,6 @@ class Power_Form_7_Admin {
 
 	public function settings_section_validation($dirty_settings) {
 		// This runs only when the settings are changed.
-		// TODO: Validate non-empty license keys
-		// TODO: Show message that plugin will not work unless flow user is set
-		// TODO: Show error message if updating license
 		// TODO: Show error message at all times if settings are not in a valid state.
 
 		$app_settings = $this->plugin()->get_app_settings();

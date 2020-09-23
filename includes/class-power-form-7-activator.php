@@ -30,8 +30,8 @@ class Power_Form_7_Activator {
 	 * @since    1.0.0
 	 */
 	public static function activate() {
-    // Install API endpoints for triggers
-
+		// Nothing necessary at this time.
+		// Activator allows us to initialize persisted data
 	}
 
 }

@@ -26,7 +26,7 @@ class Power_Form_7_Api {
    * 
    * @since   1.0.0
    * @access  protected
-   * @var     array   $authorized_routes The routes that are protected with authorization
+   * @var     array   $routes The routes that are protected with authorization
    */
   protected $routes;
 
@@ -44,7 +44,7 @@ class Power_Form_7_Api {
   }
 
 	private $_plugin;
-	private function plugin() {
+	public function plugin() {
 		if ($this->_plugin == null) {
 			$this->_plugin = Power_Form_7::get_instance();
 		}
@@ -76,27 +76,42 @@ class Power_Form_7_Api {
     $this->load_controllers();
   }
 
-  public function register_authorized_route(string $resource_name, array $args) {
-    $this->routes = $this->add_route($this->authorized_routes, '/' . $resource_name, $args);
+  /**
+   * Used by controllers to register routes
+   * 
+   * @since 1.0.0
+   * @param   string    $resource_name  The resource name, used for defining route path
+   * @param   routes[]     $args        An array of routes as passed to register_rest_route
+   */
+  public function register_route(string $resource_name, array $args) {
+    $this->routes = $this->add_route($this->routes, '/' . $resource_name, $args);
   }
 
   /**
    * Registers all of our routes
    */
   public function rest_api_init() {
-    return function() {
-      // Runs register_rest_route (base wordpress) for all of our routes.
+    // Runs register_rest_route (base wordpress) for all of our routes.
 
-      // Endpoints for cf7:
-      //   - GET /contact-form-7/v1/contact-forms
-      //   - GET /contact-form-7/v1/contact-forms/{{id}}
-      //   - POST /contact-form-7/v1/contact-forms/{{id}}
-      //   - In future can support more for more interesting use-cases
+    // TODO: Endpoints for cf7:
+    //   - GET /contact-form-7/v1/contact-forms
+    //   - GET /contact-form-7/v1/contact-forms/{{id}}
+    //   - POST /contact-form-7/v1/contact-forms/{{id}}
+    //   - In future can support more for more interesting use-cases
 
-      // Endpoints for pf7:
-      //   - POST /power-form-7/v1/webhooks
-      //   - DELETE /power-form-7/v1/webhooks/{{id}}
-    };
+    // TODO: Endpoints for pf7:
+    //   - POST /power-form-7/v1/webhooks
+    //   - DELETE /power-form-7/v1/webhooks/{{id}}
+    //   - GET /power-form-7/v1/forms/{{id}}  # Returns form schema json
+
+    foreach ($this->routes as $route) {
+      register_rest_route(
+        $route['namespace'],
+        $route['route'],
+        $route['args'],
+        $route['override']
+      );
+    }
   }
 
   /**
@@ -104,7 +119,7 @@ class Power_Form_7_Api {
    * 
    * Stock wordpress rest API does not include any authentication methods. We can't rely on auth plugins or wordpress.com for our clients
    * Therefore we need to build out own authentication method.
-   * This authentication method can be the license key for our product.
+   * This authentication routes can be the license key for our product.
    * 
    * This allows us to:
    * - Allow capabilities required by our plugin
@@ -113,12 +128,15 @@ class Power_Form_7_Api {
    */
   public function license_auth_handler($input_user) {
     // Performs an authentication check if we are not logged in and have received the license header
+    // TODO: Restrict permissions of this user to only those necessary for use of this plugin.
 
     if (!empty($input_user)) {
       return $input_user;
     }
 
-    $auth_header = $_SERVER['HTTP_LICENSE_AUTHORIZATION'];
+    if (isset($_SERVER['HTTP_LICENSE_AUTHORIZATION'])) {
+      $auth_header = $_SERVER['HTTP_LICENSE_AUTHORIZATION'];
+    }
 
     if (!isset($auth_header)) {
       return $input_user;
@@ -165,26 +183,28 @@ class Power_Form_7_Api {
   private static $_instance = null;
   
   private function require_dependencies() {
-    // Our abstract controller which ensures validation
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'api/includes/class-pf7-authorized-controller.php';
   }
 	
   private function load_controllers() {
     // Load each controller class here
     $controllers = array(
       array(
-        'class' => 'Pf7_Webhooks_controller',
+        'class' => 'Pf7_Webhooks_Controller',
         'file'  => 'class-pf7-webhooks-controller'
+      ),
+      array(
+        'class' => 'Pf7_Forms_Controller',
+        'file'  => 'class-pf7-forms-controller'
       )
     );
 
     foreach($controllers as $controller) {
-      $file = dirname(__FILE__) . 'controllers/' . $controller['file'] . '.php';
+      $file = dirname(__FILE__) . '/controllers/' . $controller['file'] . '.php';
 
       if (file_exists($file)) {
         require_once($file);
 
-        $controller_instance = new $controller['class']();
+        $controller_instance = new $controller['class']($this);
 
         $controller_instance->register_routes();
       }
