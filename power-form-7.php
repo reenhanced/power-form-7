@@ -75,9 +75,10 @@ require plugin_dir_path( __FILE__ ) . 'includes/class-power-form-7.php';
  * @since    1.0.0
  */
 function run_power_form_7() {
-
-	$plugin = new Power_Form_7();
-	$plugin->run();
+	if ( is_plugin_active( 'contact-form-7/wp-contact-form-7.php' ) ) {
+		$plugin = new Power_Form_7();
+		$plugin->run();
+	}
 }
 
 // Load the plugin only if CF7 is installed.

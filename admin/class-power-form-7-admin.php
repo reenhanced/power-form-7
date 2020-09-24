@@ -146,7 +146,7 @@ class Power_Form_7_Admin {
 		<?php
 		  if (!empty($key)) {
 				if ($valid) {
-					echo "🆗";
+					echo "🆗 Your license has been validated!";
 				} else {
 					echo "⛔";
 				}

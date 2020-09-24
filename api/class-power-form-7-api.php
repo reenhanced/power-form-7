@@ -145,9 +145,10 @@ class Power_Form_7_Api {
     $auth_license = $auth_header;
     $license_opt = $this->plugin()->get_app_setting('license_key');
     $user_id     = $this->plugin()->get_app_setting('flow_user');
+    $enabled     = $this->plugin()->get_app_setting('enabled');
     $user        = $input_user;
 
-    if ($auth_license === $license_opt) {
+    if ($enabled == 'TRUE' && $auth_license === $license_opt) {
       if ($this->plugin()->license_status_check() && is_numeric($user_id)) {
         $this->plugin()->log_debug( __METHOD__ . '() - Successful authentication as user_id: ' . print_r( $user_id, 1 ) );
         $user = $user_id;
@@ -205,7 +206,6 @@ class Power_Form_7_Api {
         require_once($file);
 
         $controller_instance = new $controller['class']($this);
-
         $controller_instance->register_routes();
       }
     }

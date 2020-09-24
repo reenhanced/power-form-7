@@ -197,6 +197,9 @@ class Power_Form_7 {
 		$this->loader->add_action( 'admin_init', $plugin_admin, 'admin_init');
 
 		// TODO: Link to settings from plugin listing area
+
+		// TODO: Admin notices for dependencies:
+		// Ref: https://github.com/Vizir/cf7-to-zapier/blob/master/modules/cf7/class-module-cf7.php#L73
 	}
 
 	/**
@@ -223,7 +226,8 @@ class Power_Form_7 {
 	 * @access   private
 	 */
 	private function define_hooks() {
-    $this->loader->add_action('wpcf7_submit', $this, 'process_submission', 10, 2);
+		$this->loader->add_action('wpcf7_submit', $this, 'process_submission', 10, 2);
+		$this->loader->add_action('wpcf7_contact_form_properties', $this, 'init_webhooks', 10, 2);
 	}
 
 	/**
@@ -311,12 +315,28 @@ class Power_Form_7 {
 		// TODO: Allow more control over the statuses here
 		// Reference: https://github.com/takayukister/contact-form-7/blob/bdedf40684/modules/flamingo.php#L19
 		if ($result['status'] == 'mail_sent' || $result['status'] == 'mail_failed') {
-			if ($this->license_status_check()) {
+			if ($this->enabled()) {
 				$connector = new Power_Form_7_Connector($contact_form, $submission);
 				$connector->send_to_azure();
 			}
 		}
-  }
+	}
+	
+
+	/**
+	 * Filter the 'wpcf7_contact_form_properties' to add necessary properties
+	 *
+	 * @since    1.0.0
+	 * @param    array              $properties     ContactForm obj properties
+	 * @param    obj                $contact_form   ContactForm obj instance
+	 */
+	public function init_webhooks($properties, $contact_form) {
+		if (!isset($properties['pf7_webhooks'])) {
+			$properties['pf7_webhooks'] = array();
+		}
+
+		return $properties;
+	}
 
 	/**
 	 * Determines if the license is valid so the correct feedback icon can be displayed next to the setting.
@@ -346,6 +366,11 @@ class Power_Form_7 {
 		$valid = $license_details && $license_details->status == 'valid' ? true : false;
 
 		return $valid;
+	}
+
+	public function enabled() {
+		$enabled = $this->get_app_setting('enabled') == 'TRUE';
+		return $enabled && $this->license_status_check();
 	}
 
 	/**

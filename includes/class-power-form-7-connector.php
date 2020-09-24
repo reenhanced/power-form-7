@@ -35,12 +35,7 @@ class Power_Form_7_Connector {
    * @return   string[]  An array of urls for the webhooks. If empty, no webhooks exist for contact form
 	 */
   public static function get_webhook_urls(WPCF7_ContactForm $contact_form) {
-    $webhook_urls = array();
-
-    // TODO: Lookup webhook urls
-    // TODO: Write a method to send the json version of the result to all webhooks.
-
-    return $webhook_urls;
+    return $contact_form->prop('pf7_webhooks');
   }
 
 	public function __construct(WPCF7_ContactForm $contact_form, WPCF7_Submission $submission = null) {
@@ -64,6 +59,8 @@ class Power_Form_7_Connector {
       // TODO: Support additional meta values
       // Reference: https://github.com/takayukister/contact-form-7/blob/bdedf40684/modules/flamingo.php#L51
 
+      // TODO: Support files
+      // Reference: https://github.com/Vizir/cf7-to-zapier/blob/master/modules/cf7/class-module-cf7.php#L262
 
       // NOTE: Files are stripped out of the submission before we get them.
       // Reference: https://github.com/takayukister/contact-form-7/blob/28efbe9273/includes/submission.php#L98
