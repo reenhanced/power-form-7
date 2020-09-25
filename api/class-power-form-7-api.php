@@ -87,6 +87,10 @@ class Power_Form_7_Api {
     $this->routes = $this->add_route($this->routes, '/' . $resource_name, $args);
   }
 
+  public function rest_url($path) {
+    return rest_url($this->plugin_name . '/' . $this->version . '/'. $path);
+  }
+
   /**
    * Registers all of our routes
    */
@@ -94,13 +98,13 @@ class Power_Form_7_Api {
     // Runs register_rest_route (base wordpress) for all of our routes.
 
     // TODO: Endpoints for cf7:
-    //   - GET /contact-form-7/v1/contact-forms
-    //   - GET /contact-form-7/v1/contact-forms/{{id}}
-    //   - POST /contact-form-7/v1/contact-forms/{{id}}
+    //   - GET /contact-form-7/v1/contact-forms         # Get list of forms
+    //   - POST /contact-form-7/v1/contact-forms/{{id}} # Update a form from inside Power Automate
+    //   - POST /contact-form-7/v1/contact-forms/{{id}}/feedback # Submit a form from inside Power Automate
     //   - In future can support more for more interesting use-cases
 
     // TODO: Endpoints for pf7:
-    //   - POST /power-form-7/v1/webhooks
+    //   - POST /power-form-7/v1/webhooks/{{id}}
     //   - DELETE /power-form-7/v1/webhooks/{{id}}
     //   - GET /power-form-7/v1/forms/{{id}}  # Returns form schema json
 
