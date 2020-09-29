@@ -66,8 +66,9 @@ class Pf7_Webhooks_Controller extends WP_Rest_Controller {
     $webhooks[$md5] = $callback_url;
 
     $contact_form->set_properties(array('pf7_webhooks' => $webhooks));
+    $contact_form->save();
 
-    $response = new WP_REST_Response('success');
+    $response = new WP_REST_Response($webhooks);
     $response->set_status(201);
     $response->header('Location', $this->_api->rest_url("webhooks/{$form_id}?md5={$md5}"));
 
@@ -95,8 +96,9 @@ class Pf7_Webhooks_Controller extends WP_Rest_Controller {
     unset($webhooks[$md5]);
 
     $contact_form->set_properties(array('pf7_webhooks' => $webhooks));
+    $contact_form->save();
 
-    $response = new WP_REST_Response('success');
+    $response = new WP_REST_Response($webhooks);
     $response->set_status(201);
 
     return $response;

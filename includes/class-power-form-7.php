@@ -156,7 +156,7 @@ class Power_Form_7 {
 		
 		if (WP_DEBUG) {
 			require_once plugin_dir_path( dirname(__FILE__) ) . 'includes/logging/KLogger.php';
-			$this->_log = new KLogger("/tmp/pf7.log", KLogger::DEBUG);
+			$this->_log = new Power_Form_7\KLogger("/tmp/pf7.log", Power_Form_7\KLogger::DEBUG);
 		}
 
 		$this->loader = new Power_Form_7_Loader();

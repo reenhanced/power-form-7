@@ -15,9 +15,7 @@
 	 *		$log->LogDebug("x = 5");					//Prints nothing due to priority setting
   */
 
-  if ( class_exists( 'KLogger' ) ) {
-    return;
-  }
+	namespace Power_Form_7;
 	
 	class KLogger
 	{
@@ -132,7 +130,7 @@
 			if ( class_exists( 'DateTime' ) ) {
 				$original_time = microtime( true ) + $this->offset;
 				$microtime     = sprintf( '%06d', ( $original_time - floor( $original_time ) ) * 1000000 );
-				$date          = new DateTime( date( 'Y-m-d H:i:s.' . $microtime, $original_time ) );
+				$date          = new \DateTime( date( 'Y-m-d H:i:s.' . $microtime, $original_time ) );
 				$time          = $date->format( $this->DateFormat );
 			
 			} else {

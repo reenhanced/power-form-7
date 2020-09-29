@@ -233,7 +233,19 @@ class Power_Form_7_Admin {
 				settings_fields($this->option_group);
 
 				do_settings_sections($this->option_group);
+				?>
 
+				<table class="form-table" role="presentation">
+					<tr>
+						<th>Site Url</th>
+						<td>
+							<pre><?php echo get_site_url(); ?></pre>
+							<p><em>Use this Site URL in your flows (must match exactly)</em></p>
+						</td>
+					</tr>
+				</table>
+
+				<?php
 				submit_button("Save Settings");
 				?>
 			</form>

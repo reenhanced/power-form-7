@@ -81,5 +81,4 @@ function run_power_form_7() {
 	}
 }
 
-// Load the plugin only if CF7 is installed.
-add_action('wpcf7_init', 'run_power_form_7', 10, 0);
+run_power_form_7();
