@@ -20,7 +20,8 @@
  * @author     Nick Hance <nhance@reenhanced.com>
  */
 class Power_Form_7_Api {
-  
+  protected $_api_version = 'v1'; 
+
   /**
    * The array of routes we want to protect with our authorization
    * 
@@ -40,7 +41,7 @@ class Power_Form_7_Api {
   }
   
   public function get_namespace() {
-    return $this->plugin_name . '/' . $this->version;
+    return $this->plugin_name . '/' . $this->_api_version;
   }
 
 	private $_plugin;
@@ -88,7 +89,7 @@ class Power_Form_7_Api {
   }
 
   public function rest_url($path) {
-    return rest_url($this->plugin_name . '/' . $this->version . '/'. $path);
+    return rest_url($this->plugin_name . '/' . $this->_api_version . '/'. $path);
   }
 
   /**
@@ -217,7 +218,7 @@ class Power_Form_7_Api {
 
   private function add_route($route_array, $route, array $args, bool $override = false) {
     $route_array[] = array(
-      'namespace' => $this->plugin_name . '/' . $this->version,
+      'namespace' => $this->plugin_name . '/' . $this->_api_version,
       'route'     => $route,
       'args'      => $args,
       'override'  => $override
