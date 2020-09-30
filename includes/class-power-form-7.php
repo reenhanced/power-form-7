@@ -432,7 +432,6 @@ class Power_Form_7 {
 			// 'sslverify' => true,
 			'body' => array(
         'key'                => trim( $license ),
-        'sku'                => 'power-form-7',
 				'domain_name'        => network_home_url(),
 			),
 		);

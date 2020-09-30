@@ -37,8 +37,8 @@ if ( ! defined( 'WPINC' ) ) {
  */
 define( 'PF7_VERSION', '1.0.0' );
 
-define( 'PF7_SERVICE_HOST', 'http://docker-host:3000/powerwp');
-//define( 'PF7_SERVICE_HOST', 'https://we.buildbettersoftware.com/powerwp');
+//define( 'PF7_SERVICE_HOST', 'http://docker-host:3000/pf7');
+define( 'PF7_SERVICE_HOST', 'https://we.buildbettersoftware.com/pf7');
 
 /**
  * The code that runs during plugin activation.
