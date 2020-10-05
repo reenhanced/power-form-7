@@ -78,7 +78,31 @@ class Power_Form_7_Connector {
 
     Power_Form_7::log(__METHOD__ . '() - json to send to webhooks: ' . print_r( $this->to_json(), 1 ) );
     Power_Form_7::log(__METHOD__ . '() - webhooks: ' . print_r( $webhook_urls, 1 ) );
-    return false;
+    
+    $content_type = 'application/json';
+
+    $blog_charset = get_option( 'blog_charset' );
+    if ( ! empty( $blog_charset ) ) {
+        $content_type .= '; charset=' . get_option( 'blog_charset' );
+    }
+
+    $args = array(
+        'method'    => 'POST',
+        'body'      => json_encode($this->to_json()),
+        'headers'   => array(
+            'Content-Type'  => $content_type,
+        ),
+    );
+
+    $results = array();
+
+    foreach ($webhook_urls as $webhook_url) {
+      $results[] = wp_remote_post($webhook_url, apply_filters('pf7_post_request_args', $args));
+    }
+
+    Power_Form_7::log(__METHOD__ . '() - results: ' . print_r( $results, 1 ) );
+
+    return $results;
   }
 
 }

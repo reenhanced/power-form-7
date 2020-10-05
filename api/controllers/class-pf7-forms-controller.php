@@ -39,15 +39,7 @@ class Pf7_Forms_Controller extends WP_Rest_Controller {
         array('status' => 404));
     }
     
-    // TODO: This actually needs to describe the submission, not the form request!
-    // We don't give a damn about how CF7 describes the form, only how the submission comes in.
-
-    $response = array(
-      'type' => 'object',
-      'properties' => $this->get_form_schema($form)
-    );
-
-    return rest_ensure_response($response);
+    return rest_ensure_response($this->get_form_schema($form));
   }
 
   private function get_form_schema(WPCF7_ContactForm $form) {
@@ -57,27 +49,31 @@ class Pf7_Forms_Controller extends WP_Rest_Controller {
       'remote_ip' => array(
         'type' => 'string',
         'x-ms-summary' => 'Remote IP',
-        'description' => 'IP Address of form submitter'
+        'description' => 'IP Address of form submitter',
+        'x-ms-visibility' => 'internal'
       ),
       'user_agent' => array(
         'type' => 'string',
         'x-ms-summary' => 'User Agent',
-        'description' => 'User Agent of submitter'
+        'description' => 'User Agent of submitter',
+        'x-ms-visibility' => 'internal'
       ),
       'url' => array(
         'type' => 'string',
-        'format' => 'url',
         'x-ms-summary' => 'Form URL',
-        'description' => 'URL from where the form was submitted'
+        'description' => 'URL from where the form was submitted',
+        'x-ms-visibility' => 'internal'
       ),
       'current_user_id' => array(
         'type' => 'number',
         'x-ms-summary' => 'User ID',
-        'description' => 'User ID of Wordpress user (0 if not logged in)'
+        'description' => 'User ID of Wordpress user (0 if not logged in)',
+        'x-ms-visibility' => 'internal'
       )
     );
 
     $tags = $form->scan_form_tags();
+    $required = array();
 
     $this->plugin()->log_debug( __METHOD__ . '($form) - tags: ' . print_r( $tags, 1 ) );
 
@@ -133,23 +129,34 @@ class Pf7_Forms_Controller extends WP_Rest_Controller {
 
       $prop = array(
         'type' => $type,
-        'x-ms-summary' => $tag->name
+        'x-ms-summary' => $tag->name,
+        'x-ms-visibility' => 'important'
       );
 
       if ($tag->is_required()) {
-        $prop['x-ms-visibility'] = 'important';
+        $required[] = $tag->name;
       }
 
       if ($type == 'array') {
         $prop['items'] = array(
           'type' => 'string'
         );
+        $prop['collectionFormat'] = 'multi';
       }
 
       $properties[$tag->name] = $prop;
     }
 
-    return $properties;
+    $response = array( 'schema' => array(
+      'type' => 'object',
+      'properties' => $this->get_form_schema($form)
+    ));
+
+    if (!empty($required)) {
+      $response['required'] = $required;
+    }
+
+    return $response;
   }
 
   private function plugin() {

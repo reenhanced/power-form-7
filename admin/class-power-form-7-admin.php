@@ -154,7 +154,8 @@ class Power_Form_7_Admin {
 	}
 
 	public function users_dropdown() {
-		$users_list = get_users( [ 'role__in' => [ 'administrator' ] ] );
+		//$users_list = get_users( [ 'role__in' => [ 'administrator' ] ] );
+		$users_list = get_users( );
 		$pf7_user   = $this->plugin()->get_app_setting('flow_user');
 		?>
 		<select name="<?php echo $this->option_name('flow_user') ?>">
@@ -240,7 +241,7 @@ class Power_Form_7_Admin {
 						<th>Site Url</th>
 						<td>
 							<pre><?php echo get_site_url(); ?></pre>
-							<p><em>Use this Site URL in your flows (must match exactly)</em></p>
+							<p><em>In order to access this site's forms, select this in your flow.</em></p>
 						</td>
 					</tr>
 				</table>
