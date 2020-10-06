@@ -50,25 +50,25 @@ class Pf7_Forms_Controller extends WP_Rest_Controller {
         'type' => 'string',
         'x-ms-summary' => 'Remote IP',
         'description' => 'IP Address of form submitter',
-        'x-ms-visibility' => 'internal'
+        'x-ms-visibility' => 'advanced'
       ),
       'user_agent' => array(
         'type' => 'string',
         'x-ms-summary' => 'User Agent',
         'description' => 'User Agent of submitter',
-        'x-ms-visibility' => 'internal'
+        'x-ms-visibility' => 'advanced'
       ),
       'url' => array(
         'type' => 'string',
         'x-ms-summary' => 'Form URL',
         'description' => 'URL from where the form was submitted',
-        'x-ms-visibility' => 'internal'
+        'x-ms-visibility' => 'advanced'
       ),
       'current_user_id' => array(
         'type' => 'number',
         'x-ms-summary' => 'User ID',
         'description' => 'User ID of Wordpress user (0 if not logged in)',
-        'x-ms-visibility' => 'internal'
+        'x-ms-visibility' => 'advanced'
       )
     );
 
@@ -88,20 +88,23 @@ class Pf7_Forms_Controller extends WP_Rest_Controller {
           break;
         case 'email':
           $type = 'string';
+          $format = 'email';
           break;
         case 'url':
           $type = 'string';
-          $format = 'url';
+          $format = 'uri';
+          break;
         case 'tel':
           $type = 'string';
           $format = 'phone';
           break;
         case 'date':
           $type = 'string';
-          $format = 'date';
+          $format = 'date-time';
           break;
         case 'number':
-          $type = 'number';
+        case 'range':
+          $type = 'numeric';
           break;
         case 'checkbox':
           $type = 'array';
@@ -113,7 +116,7 @@ class Pf7_Forms_Controller extends WP_Rest_Controller {
           $type = 'array';
           break;
         case 'acceptance':
-          $type = 'number';
+          $type = 'numeric';
           break;
         case 'textarea':
           $type = 'string';
@@ -121,6 +124,7 @@ class Pf7_Forms_Controller extends WP_Rest_Controller {
         case 'file':
         case 'submit':
         default:
+          $this->plugin()->log_debug( __METHOD__ . '() - SKIPPED TYPE ' . $type. ' - ' . print_r( $tag->name, 1 ) );
           $skip = true;
           break;
       }
@@ -133,6 +137,10 @@ class Pf7_Forms_Controller extends WP_Rest_Controller {
         'x-ms-visibility' => 'important'
       );
 
+      if (isset($format)) {
+        $prop['format'] = $format;
+      }
+
       if ($tag->is_required()) {
         $required[] = $tag->name;
       }
@@ -141,7 +149,12 @@ class Pf7_Forms_Controller extends WP_Rest_Controller {
         $prop['items'] = array(
           'type' => 'string'
         );
-        $prop['collectionFormat'] = 'multi';
+        if (isset($tag->values)) {
+          $prop['items']['enum'] = array();
+          foreach ($tag->values as $key => $value) {
+            $prop['items']['enum'][] = $value;
+          }
+        }
       }
 
       $properties[$tag->name] = $prop;
@@ -149,11 +162,11 @@ class Pf7_Forms_Controller extends WP_Rest_Controller {
 
     $response = array( 'schema' => array(
       'type' => 'object',
-      'properties' => $this->get_form_schema($form)
+      'properties' => $properties
     ));
 
     if (!empty($required)) {
-      $response['required'] = $required;
+      $response['schema']['required'] = $required;
     }
 
     return $response;
