@@ -82,6 +82,14 @@ class Power_Form_7_Admin {
 		add_action('load-'. $settings, array($this, 'load_settings_page'));
 	}
 
+	public function plugin_action_links($links, $plugin_file) {
+		if (PF7_PLUGIN_BASE == $plugin_file) {
+			$settings_link = '<a href="' . esc_url(get_admin_url(null, 'admin.php?page=wpcf7-pf7')) . '">Settings</a>';
+			array_unshift($links, $settings_link);
+		}
+		return $links;
+	}
+
 	public function admin_init() {
 		// Register settings page
 		register_setting($this->get_settings_page_slug(), $this->plugin()->get_option_name(), array(

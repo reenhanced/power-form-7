@@ -40,6 +40,10 @@ define( 'PF7_VERSION', '1.0.0' );
 //define( 'PF7_SERVICE_HOST', 'http://docker-host:3000/pf7');
 define( 'PF7_SERVICE_HOST', 'https://we.buildbettersoftware.com/pf7');
 
+if (!defined('PF7_PLUGIN_BASE')) {
+	define('PF7_PLUGIN_BASE', plugin_basename(__FILE__));
+}
+
 /**
  * The code that runs during plugin activation.
  */

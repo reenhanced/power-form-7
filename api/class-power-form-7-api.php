@@ -99,15 +99,9 @@ class Power_Form_7_Api {
     // Runs register_rest_route (base wordpress) for all of our routes.
 
     // TODO: Endpoints for cf7:
-    //   - GET /contact-form-7/v1/contact-forms         # Get list of forms
+    //   - If we just expose the update form endpoint we can let users compose the html in their flow?
     //   - POST /contact-form-7/v1/contact-forms/{{id}} # Update a form from inside Power Automate
-    //   - POST /contact-form-7/v1/contact-forms/{{id}}/feedback # Submit a form from inside Power Automate
-    //   - In future can support more for more interesting use-cases
-
-    // TODO: Endpoints for pf7:
-    //   - POST /power-form-7/v1/webhooks/{{id}}
-    //   - DELETE /power-form-7/v1/webhooks/{{id}}
-    //   - GET /power-form-7/v1/forms/{{id}}  # Returns form schema json
+    //   - In future we can support more interesting use-cases
 
     foreach ($this->routes as $route) {
       register_rest_route(
