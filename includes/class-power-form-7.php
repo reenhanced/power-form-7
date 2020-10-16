@@ -196,7 +196,7 @@ class Power_Form_7 {
 		$this->loader->add_action( 'admin_menu', $plugin_admin, 'admin_menu');
 		$this->loader->add_action( 'admin_init', $plugin_admin, 'admin_init');
 
-		this->loader->add_filter( 'plugin_action_links', $plugin_admin, 'plugin_action_links', 10, 2);
+		$this->loader->add_filter( 'plugin_action_links', $plugin_admin, 'plugin_action_links', 10, 2);
 
 		// TODO: Admin notices for dependencies:
 		// Ref: https://github.com/Vizir/cf7-to-zapier/blob/master/modules/cf7/class-module-cf7.php#L73
