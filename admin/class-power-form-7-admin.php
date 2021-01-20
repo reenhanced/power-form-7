@@ -339,7 +339,7 @@ class Power_Form_7_Admin {
 				return false;
 			}
 
-			$this->activate_license( $key );
+			$license_details = $this->plugin()->activate_license( $key );
 		} else { // Saving settings for existing license
 			$license_details = get_transient( 'pf7_license_details' );
 			if ( ! $license_details ) {

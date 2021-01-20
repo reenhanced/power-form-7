@@ -16,7 +16,7 @@
  * Plugin Name:       Power Form 7
  * Plugin URI:        https://www.reenhanced.com/products/power-form-7/
  * Description:       Power Form 7 integrates Contact Form 7 with Microsoft Power Automate.
- * Version:           1.0.0
+ * Version:           1.0.1
  * Author:            Reenhanced LLC
  * Author URI:        https://www.reenhanced.com/
  * Text Domain:       power-form-7
@@ -35,7 +35,7 @@ if ( ! defined( 'WPINC' ) ) {
  * Start at version 1.0.0 and use SemVer - https://semver.org
  * Rename this for your plugin and update it as you release new versions.
  */
-define( 'PF7_VERSION', '1.0.0' );
+define( 'PF7_VERSION', '1.0.1' );
 
 //define( 'PF7_SERVICE_HOST', 'http://docker-host:3000/pf7');
 define( 'PF7_SERVICE_HOST', 'https://we.buildbettersoftware.com/pf7');
@@ -79,7 +79,8 @@ require plugin_dir_path( __FILE__ ) . 'includes/class-power-form-7.php';
  * @since    1.0.0
  */
 function run_power_form_7() {
-	if ( is_plugin_active( 'contact-form-7/wp-contact-form-7.php' ) ) {
+	$plugins = get_option('active_plugins');
+	if ( in_array( 'contact-form-7/wp-contact-form-7.php', $plugins ) ) {
 		$plugin = new Power_Form_7();
 		$plugin->run();
 	}

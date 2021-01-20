@@ -84,7 +84,7 @@ class Power_Form_7_Api {
    * @param   string    $resource_name  The resource name, used for defining route path
    * @param   routes[]     $args        An array of routes as passed to register_rest_route
    */
-  public function register_route(string $resource_name, array $args) {
+  public function register_route($resource_name, array $args) {
     $this->routes = $this->add_route($this->routes, '/' . $resource_name, $args);
   }
 
@@ -210,12 +210,12 @@ class Power_Form_7_Api {
     }
   }
 
-  private function add_route($route_array, $route, array $args, bool $override = false) {
+  private function add_route($route_array, $route, array $args, bool $override = null) {
     $route_array[] = array(
       'namespace' => $this->plugin_name . '/' . $this->_api_version,
       'route'     => $route,
       'args'      => $args,
-      'override'  => $override
+      'override'  => $override == true
     );
 
     return $route_array;
