@@ -294,7 +294,7 @@ class Power_Form_7 {
 	 * @return array
 	 */
 	public function get_app_settings() {
-		return get_option($this->get_option_name());
+		return get_option($this->get_option_name(), array());
 	}
 	
 	public function update_app_settings($settings) {
