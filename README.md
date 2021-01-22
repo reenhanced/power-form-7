@@ -48,6 +48,19 @@ Install Power Form 7 and activate with your license key. (Get your license here:
 
 If you're satisified with Power Form 7, please leave a [review here](https://wordpress.org/support/plugin/power-form-7/reviews/).
 
+### API Disclosure ###
+
+This plugin uses a 3rd party API by Reenhanced to facilitate communication between Power Automate/Azure and your WordPress site. The API is used in the following manner:
+
+- Power Automate connectors rely on a single API endpoint, but you may install this plugin on many different WordPress sites.
+- Power Automate will connect to the API and the request is forwarded to your WordPress site.
+- Reponses are then sent back to Power Automate/Azure.
+- Response and request data is not stored.
+- Your license key is used to authorize the request from Power Automate and protect your system from unauthorized use. (Do not disclose your license key. It can allow API access to your WordPress site.)
+- The API is also used to validate your license.
+
+The API is bound by the privacy policy as described here: https://reenhanced.com/privacy/
+
 ### Support ###
 
 For support email us at support@reenhanced.com
@@ -79,6 +92,10 @@ Files are not yet supported with this plugin and is planned in a future release.
 Free text is not supported in the initial release.
 
 ## Changelog ##
+
+### 1.0.2 ###
+
+* Adds support for PHP5.6 and WordPress 4
 
 ### 1.0.0 ###
 

@@ -79,7 +79,7 @@ require plugin_dir_path( __FILE__ ) . 'includes/class-power-form-7.php';
  * @since    1.0.0
  */
 function run_power_form_7() {
-	$plugins = get_option('active_plugins');
+	$plugins = get_option('active_plugins', array());
 	if ( in_array( 'contact-form-7/wp-contact-form-7.php', $plugins ) ) {
 		$plugin = new Power_Form_7();
 		$plugin->run();

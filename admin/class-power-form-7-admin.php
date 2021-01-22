@@ -237,7 +237,7 @@ class Power_Form_7_Admin {
 			?>
 
 			<form action="options.php" method="post">
-				<input type="hidden" name="page" value="<?php echo $_REQUEST['page'] ?>" />
+				<input type="hidden" name="page" value="<?php echo esc_attr($_REQUEST['page']) ?>" />
 				<?php 
 				settings_fields($this->option_group);
 
@@ -343,7 +343,7 @@ class Power_Form_7_Admin {
 		} else { // Saving settings for existing license
 			$license_details = get_transient( 'pf7_license_details' );
 			if ( ! $license_details ) {
-				$last_check = get_option( 'pf7_last_license_check' );
+				$last_check = get_option( 'pf7_last_license_check', 0 );
 				if ( $last_check > time() - 5 * MINUTE_IN_SECONDS ) {
 					return true;
 				}
