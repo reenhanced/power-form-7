@@ -13,8 +13,8 @@
  * @package           power-form-7
  
  * @wordpress-plugin
- * Plugin Name:       Power Form 7
- * Plugin URI:        https://www.reenhanced.com/products/power-form-7/
+ * Plugin Name:       Power Form 7: Power Automate Connector for Contact Form 7
+ * Plugin URI:        https://www.powerform7.com/
  * Description:       Power Form 7 integrates Contact Form 7 with Microsoft Power Automate.
  * Version:           1.0.2
  * Author:            Reenhanced LLC
