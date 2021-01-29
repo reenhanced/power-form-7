@@ -1,9 +1,9 @@
 == Power Form 7: Power Automate Connector for Contact Form 7 ==
-Contributors: nhance
+Contributors: reenhanced
 Tags: cf7, contact form, power automate, integration, contact form 7, flow, reenhanced
 Requires at least: 5.4
 Tested up to: 5.6  
-Stable tag: 1.0.2  
+Stable tag: trunk
 Requires PHP: 5.6
 License: GPLv2 or later  
 License URI: http://www.gnu.org/licenses/gpl-2.0.html  
@@ -20,7 +20,7 @@ Integrate Contact Form 7 with Microsoft Power Automate. Trigger flows and/or sub
 
 == How to Use ==
 
-Install Power Form 7 and activate with your license key. (Get your license here: https://www.reenhanced.com/products/power-form-7/) Once configured, all of your Contact Form 7 forms are available for trigger or submission on Power Automate.
+Install Power Form 7 and activate with your license key. (Get your license here: [https://www.reenhanced.com/products/power-form-7/](https://www.reenhanced.com/products/power-form-7/) Once configured, all of your Contact Form 7 forms are available for trigger or submission on Power Automate.
 
 === Configuration ===
 
@@ -95,7 +95,7 @@ Free text is not supported in the initial release.
 
 = 1.0.2 =
 
-* Adds support for PHP5.6 and WordPress 4
+* Adds support for PHP 5.6
 
 = 1.0.0 =
 
@@ -105,6 +105,6 @@ Free text is not supported in the initial release.
 
 == Screenshots ==
 
-1. flow-example.jpg
-2. submit-from-flow.jpg
-3. settings.jpg
+1. You can use a form submission to trigger a flow
+2. You can submit a form from within a flow
+3. Screenshot of the settings page
