@@ -104,7 +104,7 @@ class Pf7_Forms_Controller extends WP_Rest_Controller {
           break;
         case 'number':
         case 'range':
-          $type = 'numeric';
+          $type = 'number';
           break;
         case 'checkbox':
           $type = 'array';
@@ -116,7 +116,7 @@ class Pf7_Forms_Controller extends WP_Rest_Controller {
           $type = 'array';
           break;
         case 'acceptance':
-          $type = 'numeric';
+          $type = 'number';
           break;
         case 'textarea':
           $type = 'string';

@@ -214,9 +214,16 @@ class Power_Form_7 {
 
     $plugin_api = new Power_Form_7_Api( $this->get_plugin_name(), $this->get_version() );
     
+		// Shim to add partial compatibility with CF7 Smart Grid
+		// Note: CF7 Smart Grid does not respect schema structure so it will produce invalid output
+		// if the "repeated rows" feature is used.
+		$this->loader->add_filter('cf7sg_preserve_cf7_data_schema', $this, 'return_true');
+
 		$this->loader->add_action( 'rest_api_init', $plugin_api, 'rest_api_init' );
 		$this->loader->add_filter( 'determine_current_user', $plugin_api, 'license_auth_handler');
 	}
+
+	public function return_true() { return true; }
 
 	/**
 	 * Register all of the hooks related to the functionality

@@ -93,6 +93,10 @@ Free text is not supported in the initial release.
 
 == Changelog ==
 
+= 1.0.3 = 
+
+* Adds partial compatibility with CF7 Smart Grid.
+
 = 1.0.2 =
 
 * Adds support for PHP 5.6
