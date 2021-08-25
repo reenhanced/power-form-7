@@ -2,7 +2,7 @@
 Contributors: reenhanced
 Tags: cf7, contact form, power automate, integration, contact form 7, flow, reenhanced
 Requires at least: 5.4
-Tested up to: 5.6  
+Tested up to: 5.8  
 Stable tag: trunk
 Requires PHP: 5.6
 License: GPLv2 or later  
