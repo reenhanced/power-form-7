@@ -93,6 +93,14 @@ Free text is not supported in the initial release.
 
 == Changelog ==
 
+= 1.0.5 =
+
+* Resolves an issue where triggers wouldn't fire in Contact Form 7 5.5.3
+
+= 1.0.4 =
+
+* Tested and confirmed with WordPress 5.8. Version bump only.
+
 = 1.0.3 = 
 
 * Adds partial compatibility with CF7 Smart Grid.

@@ -234,6 +234,9 @@ class Power_Form_7 {
 	 */
 	private function define_hooks() {
 		$this->loader->add_action('wpcf7_submit', $this, 'process_submission', 10, 2);
+		// Version 5.5.3 added the action below, which will enable our custom property
+		$this->loader->add_action('wpcf7_pre_construct_contact_form_properties', $this, 'init_webhooks', 10, 2);
+		// Older versions use the action below to initialize the custom property. We can safely have both.
 		$this->loader->add_action('wpcf7_contact_form_properties', $this, 'init_webhooks', 10, 2);
 	}
 
@@ -317,6 +320,7 @@ class Power_Form_7 {
    */
   public function process_submission($contact_form, $result) {
 		$submission = WPCF7_Submission::get_instance();
+		$this->log_debug( __METHOD__ . '() - $result: ' . print_r( $result, 1 ) );
 
 		// If errors result and are our fault, we still want the flows to run.
 		// TODO: Allow more control over the statuses here

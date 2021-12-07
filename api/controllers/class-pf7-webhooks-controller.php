@@ -10,6 +10,22 @@ class Pf7_Webhooks_Controller extends WP_Rest_Controller {
   public function register_routes() {
     $this->_api->register_route('webhooks/(?P<form_id>\d+)', array(
       array(
+        'methods' => WP_REST_Server::READABLE,
+        'callback' => array($this, 'list_webhooks'),
+        'permission_callback' => function(WP_REST_Request $request) {
+          $form_id = (int) $request->get_param('form_id');
+
+          if ( current_user_can( 'wpcf7_edit_contact_form', $form_id ) ) {
+            return true;
+          } else {
+            return new WP_Error( 'wpcf7_forbidden',
+              __( "You are not allowed to access the requested contact form.", 'contact-form-7' ),
+              array( 'status' => 403 )
+            );
+          }
+        }
+      ),
+      array(
         'methods' => WP_REST_Server::CREATABLE,
         'callback' => array($this, 'create_webhook'),
         'permission_callback' => function(WP_REST_Request $request) {
@@ -42,6 +58,24 @@ class Pf7_Webhooks_Controller extends WP_Rest_Controller {
         }
       )
     ));
+  }
+
+  public function list_webhooks(WP_REST_Request $request) {
+    $form_id = (int) $request->get_param('form_id');
+    $contact_form = wpcf7_contact_form($form_id);
+
+    if (!$contact_form) {
+      return new WP_Error('wpcf7_not_found',
+          __('The requested contact form was not found', 'power-form-7'),
+          array('status' => 404));
+    }
+
+    $webhooks = $contact_form->prop('pf7_webhooks');
+    $webhooks = $contact_form->get_properties();
+
+    $response = new WP_REST_Response($webhooks);
+
+    return $response;
   }
 
   public function create_webhook(WP_REST_Request $request) {
