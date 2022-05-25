@@ -2,7 +2,7 @@
 Contributors: reenhanced
 Tags: cf7, contact form, power automate, integration, contact form 7, flow, reenhanced
 Requires at least: 5.4
-Tested up to: 5.9  
+Tested up to: 6.0
 Stable tag: trunk
 Requires PHP: 5.6
 License: GPLv2 or later  
@@ -92,6 +92,10 @@ Files are not yet supported with this plugin and is planned in a future release.
 Free text is not supported in the initial release.
 
 == Changelog ==
+
+= 1.0.6 =
+
+* Compatibility with WordPress 6.0
 
 = 1.0.5 =
 
