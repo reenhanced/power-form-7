@@ -33,7 +33,7 @@ if ( ! class_exists('WPCF7') ) {
  */
 class Power_Form_7 {
 
-	protected $_version = '1.0.2';
+	protected $_version = '2.0.0';
 	protected $_slug = 'power-form-7';
 	protected $_path = 'power-form-7/power-form-7.php';
 	protected $_full_path = __FILE__;
