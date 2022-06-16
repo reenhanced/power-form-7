@@ -93,6 +93,12 @@ Free text is not supported in the initial release.
 
 == Changelog ==
 
+= 2.0.0 =
+
+* Changes how form data is processed
+* Supports files
+* Supports pipes
+
 = 1.0.6 =
 
 * Compatibility with WordPress 6.0
