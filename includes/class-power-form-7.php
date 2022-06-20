@@ -198,8 +198,14 @@ class Power_Form_7 {
 
 		$this->loader->add_filter( 'plugin_action_links', $plugin_admin, 'plugin_action_links', 10, 2);
 
+		$this->loader->add_action('wp_mail_failed', $this, 'log_mail_errors');
+
 		// TODO: Admin notices for dependencies:
 		// Ref: https://github.com/Vizir/cf7-to-zapier/blob/master/modules/cf7/class-module-cf7.php#L73
+	}
+
+	public function logmail( $err) {
+		Power_Form_7::log(__METHOD__ . '() - err: ' . print_r( $err, 1 ) );
 	}
 
 	/**
@@ -233,7 +239,8 @@ class Power_Form_7 {
 	 * @access   private
 	 */
 	private function define_hooks() {
-		$this->loader->add_action('wpcf7_submit', $this, 'process_submission', 10, 2);
+		// Use Mail Sent so we can get at the form submissions
+		$this->loader->add_action('wpcf7_mail_sent', $this, 'process_submission', 10, 2);
 		// Version 5.5.3 added the action below, which will enable our custom property
 		$this->loader->add_action('wpcf7_pre_construct_contact_form_properties', $this, 'init_webhooks', 10, 2);
 		// Older versions use the action below to initialize the custom property. We can safely have both.
@@ -318,18 +325,37 @@ class Power_Form_7 {
    * @param WPCF7_ContactForm $contact_form 
 	 * @param $result
    */
-  public function process_submission($contact_form, $result) {
+  public function process_submission( $contact_form ) {
 		$submission = WPCF7_Submission::get_instance();
-		$this->log_debug( __METHOD__ . '() - $result: ' . print_r( $result, 1 ) );
 
-		// If errors result and are our fault, we still want the flows to run.
-		// TODO: Allow more control over the statuses here
-		// Reference: https://github.com/takayukister/contact-form-7/blob/bdedf40684/modules/flamingo.php#L19
-		if ($result['status'] == 'mail_sent' || $result['status'] == 'mail_failed') {
+		try {
+			// TODO: Allow more control over the statuses here
+			// Reference: https://github.com/takayukister/contact-form-7/blob/bdedf40684/modules/flamingo.php#L19
 			if ($this->enabled()) {
 				$connector = new Power_Form_7_Connector($contact_form, $submission);
 				$connector->send_to_azure();
 			}
+		} catch (Exception $ex) {
+			/**
+			 * Filter: pf7_trigger_webhook_error_message
+			 *
+			 * The 'pf7_trigger_webhook_error_message' filter change the message in case of error.
+			 * Default is CF7 error message, but you can access exception to create your own.
+			 *
+			 * You can ignore errors returning false:
+			 * add_filter( 'pf7_trigger_webhook_error_message', '__return_empty_string' );
+			 *
+			 * @since 2.0.0
+			 */
+			$error_message =  apply_filters('pf7_trigger_webhook_error_message', $contact_form->message('mail_sent_ng'), $ex);
+
+			// If empty ignore
+			if (empty($error_message)) return;
+
+			// Set error and send error message
+			$submission = WPCF7_Submission::get_instance();
+			$submission->set_status('mail_failed');
+			$submission->set_response($error_message);
 		}
 	}
 	

@@ -112,6 +112,7 @@ class Power_Form_7_Connector {
 					$filename = wp_unique_filename( $upload_dir, $tag->name . '-' . basename( $file ) );
 
 					if ( ! copy( $file, $upload_dir . '/' . $filename ) ) {
+						Power_Form_7::log(__METHOD__ . "() - copy of file to {$upload_dir}/{$filename} failed: " . print_r( $file, 1 ) );
 						$this->submission->set_status( 'mail_failed' );
 						$this->submission->set_response( $this->contact_form->message( 'upload_failed' ) );
 

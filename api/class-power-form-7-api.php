@@ -145,8 +145,6 @@ class Power_Form_7_Api {
 		$enabled     = $this->plugin()->get_app_setting('enabled');
 		$user        = $input_user;
 
-		$this->plugin()->log_debug( __METHOD__ . '() - debug: ' . print_r( $enabled, 1 ) );
-
 		if ( $enabled && $auth_license === $license_opt ) {
 			if ($this->plugin()->license_status_check() && is_numeric($user_id)) {
 				$this->plugin()->log_debug( __METHOD__ . '() - Successful authentication as user_id: ' . print_r( $user_id, 1 ) );
