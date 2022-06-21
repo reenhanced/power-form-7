@@ -98,6 +98,7 @@ Free text is not supported in the initial release.
 * Changes how form data is processed
 * Supports files
 * Supports pipes
+* Compatible with Contact Form 7 v5.6
 
 = 1.0.6 =
 
