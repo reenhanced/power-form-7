@@ -112,14 +112,15 @@ class Power_Form_7_Connector {
 					$filename = wp_unique_filename( $upload_dir, $tag->name . '-' . basename( $file ) );
 
 					if ( ! copy( $file, $upload_dir . '/' . $filename ) ) {
-						Power_Form_7::log(__METHOD__ . "() - copy of file to {$upload_dir}/{$filename} failed: " . print_r( $file, 1 ) );
+						Power_Form_7::log(__METHOD__ . "() - FAILED copy of file to {$upload_dir}/{$filename}: " . print_r( $file, 1 ) );
 						$this->submission->set_status( 'mail_failed' );
 						$this->submission->set_response( $this->contact_form->message( 'upload_failed' ) );
 
+						$copied_files[] = "Could not attach {$filename}. Please ensure contact form 7 can send email.";
 						continue;
+					} else {
+						$copied_files[] = $upload_url . '/' . $filename;
 					}
-
-					$copied_files[] = $upload_url . '/' . $filename;
 				}
 
 				$value = $copied_files;
@@ -188,6 +189,12 @@ class Power_Form_7_Connector {
 
 		Power_Form_7::log(__METHOD__ . '() - json to send to webhooks: ' . print_r( $this->to_json(), 1 ) );
 		Power_Form_7::log(__METHOD__ . '() - webhooks: ' . print_r( $webhook_urls, 1 ) );
+
+		$this->submission->add_result_props(
+			array(
+				'power-form-7' => $webhook_urls
+			)
+		);
 		
 		$content_type = 'application/json';
 
@@ -209,6 +216,13 @@ class Power_Form_7_Connector {
 		foreach ($webhook_urls as $webhook_url) {
 			$results[] = wp_remote_post($webhook_url, apply_filters('pf7_post_request_args', $args));
 		}
+
+		$this->submission->add_result_props( array(
+				'power-form-7-results' => array(
+					'results' => $results
+				)
+			)
+		);
 
 		Power_Form_7::log(__METHOD__ . '() - results: ' . print_r( $results, 1 ) );
 

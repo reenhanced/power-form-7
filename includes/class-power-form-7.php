@@ -156,7 +156,8 @@ class Power_Form_7 {
 		
 		if (WP_DEBUG) {
 			require_once plugin_dir_path( dirname(__FILE__) ) . 'includes/logging/KLogger.php';
-			$this->_log = new Power_Form_7\KLogger("/tmp/pf7.log", Power_Form_7\KLogger::DEBUG);
+			$wp_upload_dir = wp_get_upload_dir();
+			$this->_log = new Power_Form_7\KLogger("{$wp_upload_dir['basedir']}/pf7.log", Power_Form_7\KLogger::DEBUG);
 		}
 
 		$this->loader = new Power_Form_7_Loader();
@@ -198,7 +199,7 @@ class Power_Form_7 {
 
 		$this->loader->add_filter( 'plugin_action_links', $plugin_admin, 'plugin_action_links', 10, 2);
 
-		$this->loader->add_action('wp_mail_failed', $this, 'log_mail_errors');
+		$this->loader->add_action( 'wp_mail_failed', $this, 'log_mail_errors' );
 
 		// TODO: Admin notices for dependencies:
 		// Ref: https://github.com/Vizir/cf7-to-zapier/blob/master/modules/cf7/class-module-cf7.php#L73
@@ -241,6 +242,10 @@ class Power_Form_7 {
 	private function define_hooks() {
 		// Use Mail Sent so we can get at the form submissions
 		$this->loader->add_action('wpcf7_mail_sent', $this, 'process_submission', 10, 2);
+	
+		// Fallback to process on wpcf7_submit. Trigger is fired only one time
+		$this->loader->add_action('wpcf7_submit', $this, 'process_submission', 10, 2);
+
 		// Version 5.5.3 added the action below, which will enable our custom property
 		$this->loader->add_action('wpcf7_pre_construct_contact_form_properties', $this, 'init_webhooks', 10, 2);
 		// Older versions use the action below to initialize the custom property. We can safely have both.
@@ -327,13 +332,16 @@ class Power_Form_7 {
    */
   public function process_submission( $contact_form ) {
 		$submission = WPCF7_Submission::get_instance();
+		$result     = $submission->get_result();
 
 		try {
 			// TODO: Allow more control over the statuses here
 			// Reference: https://github.com/takayukister/contact-form-7/blob/bdedf40684/modules/flamingo.php#L19
-			if ($this->enabled()) {
+			if ( $this->enabled() && !empty( $submission ) && ! array_key_exists( 'power-form-7', $result ) ) {
 				$connector = new Power_Form_7_Connector($contact_form, $submission);
-				$connector->send_to_azure();
+				if ( $submission->is( 'mail_sent' ) || $submission->is( 'mail_failed' ) ) {
+					$connector->send_to_azure();
+				}
 			}
 		} catch (Exception $ex) {
 			/**
