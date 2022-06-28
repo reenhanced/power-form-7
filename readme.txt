@@ -93,6 +93,10 @@ Free text is not supported in the initial release.
 
 == Changelog ==
 
+= 2.1.1 = 
+* Resolves an issue where in some cases submissions were described incorrectly to Power Automate.
+* Resolves type errors on some form submissions
+
 = 2.1.0 =
 
 * Power Form 7 will send submissions to Power Automate even if Contact Form 7 cannot send email

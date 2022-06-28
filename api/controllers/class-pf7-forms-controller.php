@@ -31,8 +31,9 @@ class Pf7_Forms_Controller extends WP_Rest_Controller {
 	}
 
 	public function get_form( WP_REST_Request $request ) {
-		$id   = (int) $request->get_param('id');
-		$form = wpcf7_contact_form($id);
+		$id      = (int) $request->get_param('id');
+		$context = $request->get_param( 'context', 'view' );
+		$form    = wpcf7_contact_form($id);
 
 		if (!$form) {
 			return new WP_Error(
@@ -42,10 +43,10 @@ class Pf7_Forms_Controller extends WP_Rest_Controller {
 			);
 		}
 
-		return rest_ensure_response($this->get_form_schema($form));
+		return rest_ensure_response($this->get_form_schema($form, $context));
 	}
 
-	private function get_form_schema( WPCF7_ContactForm $form ) {
+	private function get_form_schema( WPCF7_ContactForm $form, $context = 'view' ) {
 		$cf7_props = $form->get_properties();
 
 		$properties = array(
@@ -78,8 +79,6 @@ class Pf7_Forms_Controller extends WP_Rest_Controller {
 		$tags     = $form->scan_form_tags();
 		$required = array();
 
-		$this->plugin()->log_debug(__METHOD__ . '($form) - tags: ' . print_r($tags, 1));
-
 		foreach ((array) $tags as $tag) {
 			$skip   = false;
 			$type   = 'string';
@@ -110,13 +109,13 @@ class Pf7_Forms_Controller extends WP_Rest_Controller {
 					$type = 'number';
 					break;
 				case 'checkbox':
-					$type = 'array';
+					$type = ( 'edit' === $context ) ? 'array' : 'string';
 					break;
 				case 'select':
-					$type = 'array';
+					$type = ( 'edit' === $context ) ? 'array' : 'string';
 					break;
 				case 'radio':
-					$type = 'array';
+					$type = ( 'edit' === $context ) ? 'array' : 'string';
 					break;
 				case 'acceptance':
 					$type = 'number';
