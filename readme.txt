@@ -14,7 +14,7 @@ Integrate Contact Form 7 with Microsoft Power Automate. Trigger flows and/or sub
 
 [Contact Form 7 (CF7)](https://wordpress.org/plugins/contact-form-7/) is a form creation plugin used by 5+ million WordPress websites.
 
-[Power Automate](https://flow.microsoft.com/) is an integration service provided by Microsoft that allows you to connect over 400 services together easily.
+[Power Automate](https://flow.microsoft.com/) is an integration service provided by Microsoft that allows you to connect over 750 services together easily.
 
 [Power Form 7](https://www.powerform7.com/) is an independent gateway that allows the simplest connection between Contact Form 7 and Power Automate.
 
@@ -81,17 +81,12 @@ Then
 
 You will find 'Power Automate Settings' in the menu for Contact Form 7.
 
-== Frequently Asked Questions ==
-
-= How can I upload files and send link to webhook? =
-
-Files are not yet supported with this plugin and is planned in a future release.
-
-= How I can get the free text value? =
-
-Free text is not supported in the initial release.
-
 == Changelog ==
+
+= 2.2.0 =
+* Support multiple file uploads
+* Resolve an issue where some dropdown and checkbox values could not be sent
+* IMPORTANT: File field type changes to an array with this release. If you are using files, you will need to modify your flows.
 
 = 2.1.1 = 
 * Resolves an issue where in some cases submissions were described incorrectly to Power Automate.

@@ -46,9 +46,7 @@ class Pf7_Forms_Controller extends WP_Rest_Controller {
 		return rest_ensure_response($this->get_form_schema($form, $context));
 	}
 
-	private function get_form_schema( WPCF7_ContactForm $form, $context = 'view' ) {
-		$cf7_props = $form->get_properties();
-
+	private function get_form_schema( WPCF7_ContactForm $form ) {
 		$properties = array(
 			'remote_ip' => array(
 				'type' => 'string',
@@ -80,73 +78,20 @@ class Pf7_Forms_Controller extends WP_Rest_Controller {
 		$required = array();
 
 		foreach ((array) $tags as $tag) {
-			$skip   = false;
-			$type   = 'string';
-			$format = null;
-
-			switch ($tag->basetype) {
-				case 'text':
-					$type = 'string';
-					break;
-				case 'email':
-					$type = 'string';
-					$format = 'email';
-					break;
-				case 'url':
-					$type = 'string';
-					$format = 'uri';
-					break;
-				case 'tel':
-					$type = 'string';
-					$format = 'phone';
-					break;
-				case 'date':
-					$type = 'string';
-					$format = 'date-time';
-					break;
-				case 'number':
-				case 'range':
-					$type = 'number';
-					break;
-				case 'checkbox':
-					$type = ( 'edit' === $context ) ? 'array' : 'string';
-					break;
-				case 'select':
-					$type = ( 'edit' === $context ) ? 'array' : 'string';
-					break;
-				case 'radio':
-					$type = ( 'edit' === $context ) ? 'array' : 'string';
-					break;
-				case 'acceptance':
-					$type = 'number';
-					break;
-				case 'textarea':
-					$type = 'string';
-					break;
-				case 'file':
-					$type = 'string';
-					$format = 'uri';
-					break;
-				case 'submit':
-				default:
-					$this->plugin()->log_debug(__METHOD__ . '() - SKIPPED TYPE ' . $type . ' - ' . print_r($tag->name, 1));
-					$skip = true;
-					break;
-			}
+			$field_type = Power_Form_7::get_field_type( $tag->name, $tag->basetype );
+			$skip   = $field_type['skip'];
+			$type   = $field_type['type'];
+			$format = $field_type['format'];
 
 			if ($skip) {
 				break;
 			}
 
 			$prop = array(
-				'type' => $type,
-				'x-ms-summary' => $tag->name,
+				'type'            => $type,
+				'x-ms-summary'    => $tag->name,
 				'x-ms-visibility' => 'important'
 			);
-
-			if (isset($format)) {
-				$prop['format'] = $format;
-			}
 
 			if ($tag->is_required()) {
 				$required[] = $tag->name;
@@ -156,19 +101,24 @@ class Pf7_Forms_Controller extends WP_Rest_Controller {
 				$prop['items'] = array(
 					'type' => 'string'
 				);
+				if ( isset($format) ) {
+					$prop['items']['format'] = $format;
+				}
 				if (isset($tag->values)) {
 					$prop['items']['enum'] = array();
 					foreach ($tag->values as $key => $value) {
 						$prop['items']['enum'][] = $value;
 					}
 				}
+			} else if (isset($format)) {
+				$prop['format'] = $format;
 			}
 
 			$properties[$tag->name] = $prop;
 		}
 
 		$response = array('schema' => array(
-			'type' => 'object',
+			'type'       => 'object',
 			'properties' => $properties
 		));
 
@@ -179,7 +129,4 @@ class Pf7_Forms_Controller extends WP_Rest_Controller {
 		return $response;
 	}
 
-	private function plugin() {
-		return $this->_api->plugin();
-	}
 }

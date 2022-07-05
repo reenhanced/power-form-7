@@ -88,6 +88,9 @@ class Power_Form_7_Connector {
 				continue;
 			}
 
+			// Field type info
+			$field_type = Power_Form_7::get_field_type( $tag->name, $tag->basetype );
+
 			// Regular Tags
 			$value = ( ! empty( $_POST[ $tag->name ] ) ) ? $_POST[ $tag->name ] : '';
 
@@ -99,6 +102,11 @@ class Power_Form_7_Connector {
 
 			if ( is_string( $value ) ) {
 				$value = stripslashes( $value );
+
+				// Typecast array items send to us as strings into array
+				if ( 'array' === $field_type['type'] ) {
+					$value = array( $value );
+				}
 			}
 
 			// Files
@@ -124,10 +132,6 @@ class Power_Form_7_Connector {
 				}
 
 				$value = $copied_files;
-
-				if (count($value) === 1) {
-						$value = $value[0];
-				}
 			}
 
 			// Support to Pipes

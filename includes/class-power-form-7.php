@@ -13,6 +13,8 @@
  * @subpackage Power_Form_7/includes
  */
 
+use AmpProject\Validator\Spec\Tag\A;
+
 if ( ! class_exists('WPCF7') ) {
 	return;
 }
@@ -108,6 +110,76 @@ class Power_Form_7 {
 
 	public function get_option_name() {
 		return $this->plugin_name . '_app_settings';
+	}
+
+	/**
+	 * Returns an array describing the field type for the given basetype
+	 *
+	 * @param string $name The field name
+	 * @param string $basetype The basetype for the field
+	 * 
+	 * @return array 
+	 */
+	public static function get_field_type( $name, $basetype ) {
+		$type   = 'string';
+		$format = null;
+		$skip   = false;
+
+		switch ($basetype) {
+			case 'text':
+				$type = 'string';
+				break;
+			case 'email':
+				$type = 'string';
+				$format = 'email';
+				break;
+			case 'url':
+				$type = 'string';
+				$format = 'uri';
+				break;
+			case 'tel':
+				$type = 'string';
+				$format = 'phone';
+				break;
+			case 'date':
+				$type = 'string';
+				$format = 'date-time';
+				break;
+			case 'number':
+			case 'range':
+				$type = 'number';
+				break;
+			case 'checkbox':
+				$type = 'array';
+				break;
+			case 'select':
+				$type = 'array';
+				break;
+			case 'radio':
+				$type = 'array';
+				break;
+			case 'acceptance':
+				$type = 'number';
+				break;
+			case 'textarea':
+				$type = 'string';
+				break;
+			case 'file':
+				$type = 'array';
+				$format = 'uri';
+				break;
+			case 'submit':
+			default:
+				self::log(__METHOD__ . '() - Unhandled field type ' . $type . ' - ' . print_r($name, 1));
+				$skip = true;
+				break;
+		}
+
+		return array(
+			'type'   => $type,
+			'format' => $format,
+			'skip'   => $skip
+		);
 	}
 
 	/**
