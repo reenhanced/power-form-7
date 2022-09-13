@@ -84,7 +84,7 @@ class Pf7_Forms_Controller extends WP_Rest_Controller {
 			$format = $field_type['format'];
 
 			if ($skip) {
-				break;
+				continue;
 			}
 
 			$prop = array(
