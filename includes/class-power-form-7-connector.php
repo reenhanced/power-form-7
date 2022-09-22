@@ -107,6 +107,15 @@ class Power_Form_7_Connector {
 				if ( 'array' === $field_type['type'] ) {
 					$value = array( $value );
 				}
+
+				// Typecast number items to numbers
+				if ( 'number' === $field_type['type'] ) {
+					if ( strpos( $value, '.' ) !== false ) {
+						$value = floatval( $value );
+					} else {
+						$value = intval( $value );
+					}
+				}
 			}
 
 			// Files
@@ -191,7 +200,7 @@ class Power_Form_7_Connector {
 	public function send_to_azure() {
 		$webhook_urls = self::get_webhook_urls($this->contact_form);
 
-		Power_Form_7::log(__METHOD__ . '() - json to send to webhooks: ' . print_r( $this->to_json(), 1 ) );
+		Power_Form_7::log(__METHOD__ . '() - json to send to webhooks: ' . var_export( $this->to_json(), 1 ) );
 		Power_Form_7::log(__METHOD__ . '() - webhooks: ' . print_r( $webhook_urls, 1 ) );
 
 		$this->submission->add_result_props(

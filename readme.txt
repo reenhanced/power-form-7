@@ -2,7 +2,7 @@
 Contributors: reenhanced
 Tags: cf7, contact form, power automate, integration, contact form 7, flow, reenhanced
 Requires at least: 5.4
-Tested up to: 6.0
+Tested up to: 6.0.3
 Stable tag: trunk
 Requires PHP: 5.6
 License: GPLv2 or later  
@@ -82,6 +82,9 @@ Then
 You will find 'Power Automate Settings' in the menu for Contact Form 7.
 
 == Changelog ==
+
+= 2.2.2 =
+* Typecasts number fields to float or int regardless of what Contact Form 7 sends
 
 = 2.2.1 =
 * If extra field types are included that can't be handled, ignore them in the output and continue

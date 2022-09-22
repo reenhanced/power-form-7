@@ -271,7 +271,7 @@ class Power_Form_7 {
 
 		$this->loader->add_filter( 'plugin_action_links', $plugin_admin, 'plugin_action_links', 10, 2);
 
-		$this->loader->add_action( 'wp_mail_failed', $this, 'log_mail_errors' );
+		$this->loader->add_action( 'wp_mail_failed', $this, 'logmail' );
 
 		// TODO: Admin notices for dependencies:
 		// Ref: https://github.com/Vizir/cf7-to-zapier/blob/master/modules/cf7/class-module-cf7.php#L73
