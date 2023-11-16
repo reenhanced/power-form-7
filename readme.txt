@@ -2,11 +2,11 @@
 Contributors: reenhanced
 Tags: cf7, contact form, power automate, integration, contact form 7, flow, reenhanced
 Requires at least: 5.4
-Tested up to: 6.0.3
-Stable tag: trunk
+Tested up to: 6.4.1
+Stable tag: 2.2.5
 Requires PHP: 5.6
-License: GPLv2 or later  
-License URI: http://www.gnu.org/licenses/gpl-2.0.html  
+License: GPLv2 or later
+License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
 Integrate Contact Form 7 with Microsoft Power Automate. Trigger flows and/or submit data to any Contact Form 7 form.
 
@@ -83,6 +83,9 @@ You will find 'Power Automate Settings' in the menu for Contact Form 7.
 
 == Changelog ==
 
+= 2.2.5 =
+* Compatibility with WordPress 6.4.1
+
 = 2.2.2 =
 * Typecasts number fields to float or int regardless of what Contact Form 7 sends
 
@@ -94,7 +97,7 @@ You will find 'Power Automate Settings' in the menu for Contact Form 7.
 * Resolve an issue where some dropdown and checkbox values could not be sent
 * IMPORTANT: File field type changes to an array with this release. If you are using files, you will need to modify your flows.
 
-= 2.1.1 = 
+= 2.1.1 =
 * Resolves an issue where in some cases submissions were described incorrectly to Power Automate.
 * Resolves type errors on some form submissions
 
@@ -121,7 +124,7 @@ You will find 'Power Automate Settings' in the menu for Contact Form 7.
 
 * Tested and confirmed with WordPress 5.8. Version bump only.
 
-= 1.0.3 = 
+= 1.0.3 =
 
 * Adds partial compatibility with CF7 Smart Grid.
 

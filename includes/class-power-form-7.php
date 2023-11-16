@@ -90,7 +90,7 @@ class Power_Form_7 {
 	 * @var object|null $_instance If available, contains an instance of this class.
 	 */
 	private static $_instance = null;
-	
+
 	/**
 	 * Returns an instance of this class, and stores it in the $_instance property.
 	 *
@@ -100,7 +100,7 @@ class Power_Form_7 {
 			if ( self::$_instance == null ) {
 					self::$_instance = new self();
 			}
-	
+
 			return self::$_instance;
 	}
 
@@ -117,8 +117,8 @@ class Power_Form_7 {
 	 *
 	 * @param string $name The field name
 	 * @param string $basetype The basetype for the field
-	 * 
-	 * @return array 
+	 *
+	 * @return array
 	 */
 	public static function get_field_type( $name, $basetype ) {
 		$type   = 'string';
@@ -220,12 +220,12 @@ class Power_Form_7 {
 		 * The class responsible for defining all actions that occur in the api
 		 */
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'api/class-power-form-7-api.php';
-		
+
 		/**
 		 * The class responsible for connecting submission data to azure gateway
 		 */
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-power-form-7-connector.php';
-		
+
 		if (WP_DEBUG) {
 			require_once plugin_dir_path( dirname(__FILE__) ) . 'includes/logging/KLogger.php';
 			$wp_upload_dir = wp_get_upload_dir();
@@ -282,7 +282,7 @@ class Power_Form_7 {
 	}
 
 	/**
-   * 
+   *
 	 * Register all of the hooks related to the api functionality
 	 * of the plugin.
 	 *
@@ -292,7 +292,7 @@ class Power_Form_7 {
 	private function define_api_hooks() {
 
     $plugin_api = new Power_Form_7_Api( $this->get_plugin_name(), $this->get_version() );
-    
+
 		// Shim to add partial compatibility with CF7 Smart Grid
 		// Note: CF7 Smart Grid does not respect schema structure so it will produce invalid output
 		// if the "repeated rows" feature is used.
@@ -314,7 +314,7 @@ class Power_Form_7 {
 	private function define_hooks() {
 		// Use Mail Sent so we can get at the form submissions
 		$this->loader->add_action('wpcf7_mail_sent', $this, 'process_submission', 10, 2);
-	
+
 		// Fallback to process on wpcf7_submit. Trigger is fired only one time
 		$this->loader->add_action('wpcf7_submit', $this, 'process_submission', 10, 2);
 
@@ -390,7 +390,7 @@ class Power_Form_7 {
 	public function get_app_settings() {
 		return get_option($this->get_option_name(), array());
 	}
-	
+
 	public function update_app_settings($settings) {
 		return update_option($this->get_option_name(), $settings);
 	}
@@ -398,8 +398,8 @@ class Power_Form_7 {
   /**
    * Handles the submission from Contact Form 7.
    * If license is valid, sends data to Power Automate
-   * 
-   * @param WPCF7_ContactForm $contact_form 
+   *
+   * @param WPCF7_ContactForm $contact_form
 	 * @param $result
    */
   public function process_submission( $contact_form ) {
@@ -438,7 +438,7 @@ class Power_Form_7 {
 			$submission->set_response($error_message);
 		}
 	}
-	
+
 
 	/**
 	 * Filter the 'wpcf7_contact_form_properties' to add necessary properties
@@ -546,7 +546,7 @@ class Power_Form_7 {
 		// Prepare the request arguments.
 		$args = array(
 			'timeout'   => 10,
-			// 'sslverify' => true,
+			'sslverify' => true,
 			'body' => array(
         'key'                => trim( $license ),
 				'domain_name'        => network_home_url(),
@@ -563,7 +563,7 @@ class Power_Form_7 {
 				$args['method'] = 'DELETE';
 				$response = wp_remote_request( PF7_SERVICE_HOST . '/license_activation', $args );
 				break;
-			
+
 			case 'check_license':
 			default:
 				$args['method'] = 'GET';
