@@ -511,7 +511,6 @@ class Power_Form_7 {
 
 		if ( ! isset( $response[ $value ] ) ) {
 			$response[ $value ] = $this->perform_license_request( 'check_license', $value );
-			$this->log_debug( __METHOD__ . '() - response[' . $value . ']: ' . print_r( $response[$value], 1 ) );
 		}
 
 		return json_decode( wp_remote_retrieve_body( $response[ $value ] ) );
@@ -570,8 +569,6 @@ class Power_Form_7 {
 				$response = wp_remote_request( PF7_SERVICE_HOST . '/license_validation', $args );
 				break;
 		}
-
-		$this->log_debug( __METHOD__ . '() - response: ' . print_r( $response, 1 ) );
 
 		return $response;
 	}

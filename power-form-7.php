@@ -16,7 +16,7 @@
  * Plugin Name:       Power Form 7: Power Automate Connector for Contact Form 7
  * Plugin URI:        https://www.powerform7.com/
  * Description:       Power Form 7 integrates Contact Form 7 with Microsoft Power Automate.
- * Version:           2.2.5
+ * Version:           2.2.6
  * Requires at least: 5.4
  * Requires PHP:      5.6
  * Author:            Reenhanced LLC
@@ -37,7 +37,7 @@ if ( ! defined( 'WPINC' ) ) {
  * Start at version 1.0.0 and use SemVer - https://semver.org
  * Rename this for your plugin and update it as you release new versions.
  */
-define( 'PF7_VERSION', '2.2.5' );
+define( 'PF7_VERSION', '2.2.6' );
 
 //define( 'PF7_SERVICE_HOST', 'http://docker-host:3000/pf7');
 define( 'PF7_SERVICE_HOST', 'https://we.buildbettersoftware.com/pf7');

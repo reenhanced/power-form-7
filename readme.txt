@@ -3,7 +3,7 @@ Contributors: reenhanced
 Tags: cf7, contact form, power automate, integration, contact form 7, flow, reenhanced
 Requires at least: 5.4
 Tested up to: 6.4.1
-Stable tag: 2.2.5
+Stable tag: 2.2.6
 Requires PHP: 5.6
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -14,7 +14,7 @@ Integrate Contact Form 7 with Microsoft Power Automate. Trigger flows and/or sub
 
 [Contact Form 7 (CF7)](https://wordpress.org/plugins/contact-form-7/) is a form creation plugin used by 5+ million WordPress websites.
 
-[Power Automate](https://flow.microsoft.com/) is an integration service provided by Microsoft that allows you to connect over 800 services together easily.
+[Power Automate](https://flow.microsoft.com/) is an integration service provided by Microsoft that allows you to connect over 1000 services together easily.
 
 [Power Form 7](https://www.powerform7.com/) is an independent gateway that allows the simplest connection between Contact Form 7 and Power Automate.
 
@@ -82,6 +82,11 @@ Then
 You will find 'Power Automate Settings' in the menu for Contact Form 7.
 
 == Changelog ==
+
+= 2.2.6 =
+* Removes debug messaging related to license requests. No functional changes.
+* Updating to this version is highly recommended.
+* If you have previously enabled debug mode, please delete the pf7.log file in your wp-content/uploads directory.
 
 = 2.2.5 =
 * Compatibility with WordPress 6.4.1
