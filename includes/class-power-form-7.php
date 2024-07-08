@@ -13,8 +13,6 @@
  * @subpackage Power_Form_7/includes
  */
 
-use AmpProject\Validator\Spec\Tag\A;
-
 if ( ! class_exists('WPCF7') ) {
 	return;
 }
@@ -526,7 +524,6 @@ class Power_Form_7 {
 	public function activate_license( $license_key ) {
 		$response = $this->perform_license_request( 'activate_license', $license_key );
 
-		set_site_transient( 'update_plugins', null );
 		$cache_key = md5( 'pf7_' . sanitize_key( $this->_path ) . '_version_info' );
 		delete_transient( $cache_key );
 

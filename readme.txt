@@ -2,7 +2,7 @@
 Contributors: reenhanced
 Tags: cf7, contact form, power automate, integration, contact form 7, flow, reenhanced
 Requires at least: 5.4
-Tested up to: 6.4.1
+Tested up to: 6.6.0
 Stable tag: 2.2.6
 Requires PHP: 5.6
 License: GPLv2 or later
@@ -82,6 +82,10 @@ Then
 You will find 'Power Automate Settings' in the menu for Contact Form 7.
 
 == Changelog ==
+
+= 2.2.7 =
+* Compatibility with WordPress 6.6.0
+* Removes plugin update check during license activation. Resolves issues on some sites which hooked into 'update_plugins' transient changes.
 
 = 2.2.6 =
 * Removes debug messaging related to license requests. No functional changes.
